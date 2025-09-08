@@ -23,9 +23,18 @@ const { registerClient } = require("./controllers/users.controller");
 
 const usersRouter = require("./routes/users.route");
 const timeSlotsRouter = require("./routes/timeSlots.route");
+const appointmentsRouter = require("./routes/appointments.route");
+const reportsRouter = require("./routes/reports.route");
+const {
+  getAppointmentBySlotId,
+  cancelAppointment,
+  confirmAppointment,
+} = require("./controllers/appointments.controller");
 
 app.use("/api/users", usersRouter);
 app.use("/api/timeSlots", timeSlotsRouter);
+app.use("/api/appointments", appointmentsRouter);
+app.use("/api/reports", reportsRouter);
 
 app.use((error, req, res, next) => {
   res.status(error.statusCode || 500).json({
@@ -52,6 +61,34 @@ io.on("connection", (socket) => {
       io.emit("client added", newClient);
     } catch (error) {
       console.log("client NOT added");
+      socket.emit("client add fail", error);
+    }
+  });
+
+  socket.on("add appointment", async (data) => {
+    try {
+      const newAppointment = await getAppointmentBySlotId(data.slotId);
+      io.emit("appointment added", newAppointment);
+    } catch {
+      console.log("appointment NOT added");
+    }
+  });
+
+  socket.on("cancel appointment", async (data) => {
+    try {
+      const canceledAppointment = await cancelAppointment(data.appointmentId);
+      io.emit("appointment canceled", canceledAppointment);
+    } catch {
+      console.log("appointment NOT canceled");
+    }
+  });
+
+  socket.on("confirm appointment", async (data) => {
+    try {
+      const confirmedAppointment = await confirmAppointment(data.appointmentId);
+      io.emit("appointment confirmed", confirmedAppointment);
+    } catch {
+      console.log("appointment NOT confirmed");
     }
   });
 });

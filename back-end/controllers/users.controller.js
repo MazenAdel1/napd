@@ -28,10 +28,13 @@ const getUserByToken = asyncWrapper(async (req, res) => {
 });
 
 const getAllClients = asyncWrapper(async (req, res) => {
+  const { limit } = req.query;
+
   const clients = await prisma.user.findMany({
     where: {
       role: "CLIENT",
     },
+    ...(limit && { take: +limit }),
   });
   return res.json({ status: httpStatus.SUCCESS, data: { clients } });
 });

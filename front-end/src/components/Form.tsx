@@ -1,4 +1,3 @@
-import { type UseFormReturn } from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -8,51 +7,29 @@ import {
   Form as FormWrapper,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { ClassNameValue } from "tailwind-merge";
 import { cn } from "@/lib/utils";
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
-import type { InputField } from "@/types";
 import { Checkbox } from "./ui/checkbox";
+import type { FormProps } from "@/types";
 
-export type FormProps = {
-  form: UseFormReturn<
-    Record<string, unknown>,
-    unknown,
-    Record<string, unknown>
-  >;
-  inputs: InputField[];
-  onSubmit: (
-    values: z.infer<typeof z.ZodObject>,
-    form: UseFormReturn<
-      Record<string, unknown>,
-      unknown,
-      Record<string, unknown>
-    >
-  ) => void;
-  submitText: string;
-  className?: ClassNameValue;
-  additionalContent?: ReactNode;
-};
+export default function Form<T extends Record<string, unknown>>(
+  props: FormProps<T>
+) {
+  const { form, inputs, onSubmit, submitText, className, additionalContent } =
+    props;
 
-export default function Form({
-  form,
-  inputs,
-  onSubmit,
-  submitText,
-  className,
-  additionalContent,
-}: FormProps) {
   useEffect(() => {
     inputs.forEach((input) => {
       if (input.type == "checkbox" && input.defaultValue == undefined) {
-        form.setValue(input.name, false);
+        form.setValue(input.name, false as never);
+      } else if (input.hidden && input.defaultValue !== undefined) {
+        form.setValue(input.name, input.defaultValue as never);
       }
     });
-  }, []);
+  }, [form, inputs]);
 
   return (
     <FormWrapper {...form}>
@@ -65,7 +42,7 @@ export default function Form({
       >
         {inputs.map((input) => (
           <FormField
-            key={input.name}
+            key={input.name as string}
             control={form.control}
             name={input.name}
             render={({ field }) => {
@@ -76,7 +53,10 @@ export default function Form({
                   InputItem = (
                     <Textarea
                       {...field}
-                      value={field.value as HTMLInputElement["value"]}
+                      value={
+                        (field.value as HTMLInputElement["value"]) ||
+                        input.defaultValue
+                      }
                       className={input.className as string}
                     />
                   );
@@ -96,7 +76,12 @@ export default function Form({
                     <Input
                       {...field}
                       type={input.type}
-                      value={field.value as HTMLInputElement["value"]}
+                      value={
+                        (field.value as HTMLInputElement["value"]) ||
+                        input.defaultValue
+                      }
+                      {...(input.type === "number" &&
+                        form.register(input.name, { valueAsNumber: true }))}
                       className={input.className as string}
                     />
                   );
@@ -104,7 +89,7 @@ export default function Form({
               }
 
               return (
-                <FormItem>
+                <FormItem hidden={!!input.hidden}>
                   {input.label && (
                     <FormLabel>
                       {input.label}{" "}

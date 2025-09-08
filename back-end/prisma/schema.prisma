@@ -41,12 +41,12 @@ enum TimeSlotStatus {
 }
 
 model TimeSlot {
-  id           String         @id @default(uuid())
-  date         DateTime
-  startTime    DateTime
-  endTime      DateTime
-  status       TimeSlotStatus @default(AVAILABLE)
-  appointments Appointment[]
+  id          String         @id @default(uuid())
+  date        DateTime
+  startTime   DateTime
+  endTime     DateTime
+  status      TimeSlotStatus @default(AVAILABLE)
+  appointment Appointment?
 }
 
 enum AppointmentStatus {
@@ -56,11 +56,22 @@ enum AppointmentStatus {
 
 model Appointment {
   id         String            @id @default(uuid())
-  user       User              @relation(fields: [userId], references: [id])
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String
-  timeSlot   TimeSlot          @relation(fields: [timeSlotId], references: [id])
+  timeSlot   TimeSlot          @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
   timeSlotId String            @unique
   status     AppointmentStatus @default(PENDING)
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
+
+  report Report?
+}
+
+model Report {
+  id            String      @id @default(uuid())
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointmentId String      @unique
+  description   String
+  createAt      DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }

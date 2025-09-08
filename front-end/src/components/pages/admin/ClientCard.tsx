@@ -1,4 +1,4 @@
-import type { Client } from "@/types";
+import type { User } from "@/types";
 import {
   Hospital,
   LoaderCircle,
@@ -10,12 +10,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import type React from "react";
-import axios from "axios";
+import axios from "@/lib/axios";
 import { useState } from "react";
 
 type Props = {
-  client: Client;
-  setClients: React.Dispatch<React.SetStateAction<Client[]>>;
+  client: User;
+  setClients: React.Dispatch<React.SetStateAction<User[]>>;
 };
 
 export default function ClientCard({ client, setClients }: Props) {
@@ -24,7 +24,7 @@ export default function ClientCard({ client, setClients }: Props) {
   const deleteUser = async () => {
     try {
       setIsDeleting(true);
-      await axios.delete("http://localhost:3000/api/users", {
+      await axios.delete("/users", {
         params: { id: client.id },
         withCredentials: true,
       });

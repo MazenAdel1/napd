@@ -24,6 +24,9 @@ const getTimeSlotsByDate = asyncWrapper(async (req, res) => {
         lte: endOfDay,
       },
     },
+    include: {
+      appointment: true,
+    },
   });
 
   return res.json({ status: httpStatus.SUCCESS, data: { timeSlots } });
@@ -104,6 +107,68 @@ const addTimeSlot = asyncWrapper(async (req, res, next) => {
   return res.json({ status: httpStatus.SUCCESS, data: { timeSlot } });
 });
 
+const addMultipleTimeSlots = asyncWrapper(async (req, res, next) => {
+  const { date, slotsStartTime, slotsEndTime, slotDuration } = req.body;
+
+  const newDate = new Date(date);
+  newDate.setUTCHours(0, 0, 0, 0);
+
+  const newStartTime = new Date(newDate);
+  newStartTime.setHours(
+    +slotsStartTime.split(":")[0],
+    +slotsStartTime.split(":")[1]
+  );
+  let startHour = newStartTime.getHours();
+
+  const newEndTime = new Date(newDate);
+  newEndTime.setHours(+slotsEndTime.split(":")[0], +slotsEndTime.split(":")[1]);
+  const endHour = newEndTime.getHours();
+
+  let slots = [];
+
+  if (startHour + +slotDuration >= endHour) {
+    const error = appError.create(
+      "يجب أن تكون بداية المواعيد قبل النهاية",
+      httpStatus.BAD_REQUEST.code,
+      httpStatus.BAD_REQUEST.message
+    );
+    return next(error);
+  }
+
+  while (startHour + +slotDuration <= endHour) {
+    const existingTimeSlot = await prisma.timeSlot.findFirst({
+      where: {
+        date: newDate,
+        startTime: new Date(new Date(date).setHours(startHour, 0, 0, 0)),
+        endTime: new Date(
+          new Date(date).setHours(startHour + +slotDuration, 0, 0, 0)
+        ),
+      },
+    });
+
+    if (existingTimeSlot) {
+      startHour += +slotDuration;
+      continue;
+    }
+
+    slots.push({
+      date: newDate,
+      startTime: new Date(new Date(date).setHours(startHour, 0, 0, 0)),
+      endTime: new Date(
+        new Date(date).setHours(startHour + +slotDuration, 0, 0, 0)
+      ),
+    });
+
+    startHour += +slotDuration;
+  }
+
+  const data = await prisma.timeSlot.createManyAndReturn({
+    data: slots,
+  });
+
+  return res.json({ status: httpStatus.SUCCESS, data: { timeSlots: data } });
+});
+
 const deleteTimeSlot = asyncWrapper(async (req, res) => {
   const { id } = req.query;
 
@@ -119,32 +184,61 @@ const deleteTimeSlot = asyncWrapper(async (req, res) => {
 const bookTimeSlot = asyncWrapper(async (req, res) => {
   const { id } = req.query;
 
-  const timeSlot = await prisma.timeSlot.update({
-    where: {
-      id,
-    },
-    data: {
-      status: "BOOKED",
-    },
-  });
+  const result = await prisma.$transaction(async (tx) => {
+    const timeSlot = await tx.timeSlot.findUnique({
+      where: { id },
+      select: { startTime: true, status: true },
+    });
 
-  const appointment = await prisma.appointment.create({
-    data: {
-      status: "PENDING",
-      timeSlotId: id,
-      userId: req.currentUser.id,
-    },
+    if (timeSlot.startTime < new Date()) {
+      throw appError.create(
+        "لا يمكن حجز موعد في وقت مضى",
+        httpStatus.BAD_REQUEST.code,
+        httpStatus.BAD_REQUEST.message
+      );
+    }
+
+    if (timeSlot.status === "BOOKED") {
+      throw appError.create(
+        "تم حجز هذا الموعد بالفعل",
+        httpStatus.BAD_REQUEST.code,
+        httpStatus.BAD_REQUEST.message
+      );
+    }
+
+    await tx.appointment.create({
+      data: {
+        status: "PENDING",
+        timeSlotId: id,
+        userId: req.currentUser.id,
+      },
+    });
+
+    const updatedTimeSlot = await tx.timeSlot.update({
+      where: {
+        id,
+      },
+      data: {
+        status: "BOOKED",
+      },
+      include: {
+        appointment: true,
+      },
+    });
+
+    return updatedTimeSlot;
   });
 
   return res.json({
     status: httpStatus.SUCCESS,
-    data: { timeSlot, appointment },
+    data: { timeSlot: result },
   });
 });
 
 module.exports = {
   getTimeSlotsByDate,
   addTimeSlot,
+  addMultipleTimeSlots,
   deleteTimeSlot,
   bookTimeSlot,
 };

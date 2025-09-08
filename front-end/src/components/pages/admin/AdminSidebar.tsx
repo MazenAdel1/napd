@@ -3,9 +3,11 @@ import {
   SidebarContent,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router";
+import { cn } from "@/lib/utils";
+import { Link, useLocation } from "react-router";
 
 export default function AdminSidebar() {
+  const router = useLocation();
   const LINKS = [
     {
       title: "الصفحة الرئيسية",
@@ -27,6 +29,10 @@ export default function AdminSidebar() {
       title: "التقارير",
       link: "/admin/reports",
     },
+    {
+      title: "إضافة مسئول",
+      link: "/admin/registerAdmin",
+    },
   ];
   return (
     <Sidebar side="right" className="px-2 bg-gray-100">
@@ -37,7 +43,12 @@ export default function AdminSidebar() {
             <li key={link.title}>
               <Link
                 to={link.link}
-                className="block text-lg p-2 rounded-md bg-gray-200 hover:bg-gray-100 transition"
+                className={cn(
+                  `block text-lg p-2 rounded-md border-2 border-gray-200 hover:bg-gray-100 transition`,
+                  router.pathname === link.link
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : ""
+                )}
               >
                 {link.title}
               </Link>

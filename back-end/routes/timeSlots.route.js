@@ -8,6 +8,7 @@ const verifyToken = require("../middleware/verifyToken");
 const {
   getTimeSlotsByDate,
   addTimeSlot,
+  addMultipleTimeSlots,
   deleteTimeSlot,
   bookTimeSlot,
 } = require("../controllers/timeSlots.controller");
@@ -17,6 +18,10 @@ router
   .route("/")
   .post(verifyToken, allowedTo(roles.ADMIN), addTimeSlot)
   .delete(verifyToken, allowedTo(roles.ADMIN), deleteTimeSlot);
+
+router
+  .route("/multiple")
+  .post(verifyToken, allowedTo(roles.ADMIN), addMultipleTimeSlots);
 
 router.route("/book").post(verifyToken, allowedTo(roles.CLIENT), bookTimeSlot);
 

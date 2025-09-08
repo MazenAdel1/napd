@@ -26,11 +26,17 @@ export const getHoursMinutes = (ISOTime: string) => {
 export const timeSlotStatus = {
   AVAILABLE: {
     text: "متاح",
-    styles: "text-blue-500 data-[client='true']:text-green-500",
+    styles: {
+      CLIENT: "text-green-500",
+      ADMIN: "text-blue-500",
+    },
   },
   BOOKED: {
     text: "محجوز",
-    styles: "text-green-500 data-[client='true']:text-red-500",
+    styles: {
+      CLIENT: "text-red-500",
+      ADMIN: "text-green-500",
+    },
   },
 };
 
@@ -41,3 +47,13 @@ export const sortedTimeSlots = (slots: Slot[]) => {
       (new Date(b.startTime) as unknown as number)
   );
 };
+
+export const weekday = [
+  "الأحد",
+  "الإثنين",
+  "الثلاثاء",
+  "الأربعاء",
+  "الخميس",
+  "الجمعة",
+  "السبت",
+];

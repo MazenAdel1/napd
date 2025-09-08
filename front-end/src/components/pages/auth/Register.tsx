@@ -1,13 +1,40 @@
-import z, { set } from "zod";
-import { Link } from "react-router";
-import Form, { type FormProps } from "@/components/Form";
+import z from "zod";
+import { Link, useNavigate } from "react-router";
+import Form from "@/components/Form";
 import { socket } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import type { FormProps } from "@/types";
 
 export default function Register() {
-  const INPUTS: FormProps["inputs"] = [
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isError, setIsError] = useState<string | null>("");
+
+  const SCHEMA = z.object({
+    name: z
+      .string({ error: "الاسم ثلاثي باللغة العربية" })
+      .regex(/^([\u0600-\u06FF]+\s){2}[\u0600-\u06FF]+$/, {
+        error: "الاسم ثلاثي",
+      }),
+    phoneNumber: z
+      .string()
+      .regex(/^\d+$/, "يجب أن يحتوى رقم الهاتف على أرقام فقط")
+      .length(11, { error: "رقم هاتف غير صحيح" }),
+    password: z
+      .string()
+      .min(6, { error: "كلمة المرور يجب ان تكون على الاقل 6 حروف" }),
+    age: z.number(),
+    address: z.string(),
+    hasPastOperations: z.boolean(),
+    pastOperationsDesc: z.string().optional(),
+    isTakingMedications: z.boolean(),
+    medicationsDesc: z.string().optional(),
+  });
+
+  type RegisterFormSchema = z.infer<typeof SCHEMA>;
+
+  const INPUTS: FormProps<RegisterFormSchema>["inputs"] = [
     {
       id: "name",
       label: "الاسم",
@@ -73,59 +100,38 @@ export default function Register() {
     },
   ];
 
-  const SCHEMA = z.object({
-    name: z
-      .string({ error: "الاسم ثلاثي باللغة العربية" })
-      .regex(/^([\u0600-\u06FF]+\s){2}[\u0600-\u06FF]+$/, {
-        error: "الاسم ثلاثي",
-      }),
-    phoneNumber: z
-      .string()
-      .regex(/^\d+$/, "يجب أن يحتوى رقم الهاتف على أرقام فقط")
-      .length(11, { error: "رقم هاتف غير صحيح" }),
-    password: z
-      .string()
-      .min(6, { error: "كلمة المرور يجب ان تكون على الاقل 6 حروف" }),
-    age: z.coerce.number(),
-    address: z.string(),
-    hasPastOperations: z.boolean(),
-    pastOperationsDesc: z.string().optional(),
-    isTakingMedications: z.boolean(),
-    medicationsDesc: z.string().optional(),
-  });
-
-  type FormData = z.infer<typeof SCHEMA>;
-
-  const form = useForm<FormData>({
+  const form = useForm<RegisterFormSchema>({
     resolver: zodResolver(SCHEMA),
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const router = useNavigate();
 
   useEffect(() => {
     const handleSuccess = () => {
       setIsSubmitting(false);
-      setIsError(false);
+      setIsError(null);
+      router("/login");
     };
 
-    const handleError = () => {
+    const handleError = (errorMessage: string) => {
+      setIsError(errorMessage);
       setIsSubmitting(false);
-      setIsError(true);
     };
 
     socket.on("client add success", handleSuccess);
-    socket.on("client add fail", handleError);
+    socket.on("client add fail", (error) => handleError(error.message));
 
     return () => {
       socket.off("client add success", handleSuccess);
-      socket.off("client add fail", handleError);
+      socket.off("client add fail", (error) => handleError(error.message));
     };
-  }, [form]);
+  }, [form, router]);
 
-  const onSubmit: FormProps["onSubmit"] = async (values) => {
+  const onSubmit: FormProps<RegisterFormSchema>["onSubmit"] = async (
+    values
+  ) => {
     setIsSubmitting(true);
-    setIsError(false);
+    setIsError(null);
     socket.emit("add client", values);
   };
 
@@ -137,7 +143,7 @@ export default function Register() {
       ...(isError && {
         errors: {
           root: {
-            message: "المستخدم موجود بالفعل",
+            message: isError,
           },
         },
       }),
@@ -148,7 +154,6 @@ export default function Register() {
     <Form
       form={formWithLoadingState}
       inputs={INPUTS}
-      schema={SCHEMA}
       onSubmit={onSubmit}
       submitText="سجل الحساب"
       additionalContent={

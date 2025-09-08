@@ -7,9 +7,14 @@ import RegisterAdmin from "./components/pages/admin/RegisterAdmin";
 import UserProvider from "./UserProvider";
 import AdminLayout from "./components/pages/admin/AdminLayout";
 import AdminPage from "./components/pages/admin/AdminPage";
-import TimeSlotsPage from "./components/TimeSlotsPage";
+import TimeSlotsPage from "./components/timeSlots/TimeSlotsPage";
 import Home from "./components/pages/home/Home";
 import HomeLayout from "./components/pages/home/HomeLayout";
+import { Toaster } from "./components/ui/sonner";
+import Appointments from "./components/appointments/Appointments";
+import Reports from "./components/pages/admin/report/Reports";
+import Report from "./components/pages/admin/report/ReportCard";
+import ReportLayout from "./components/pages/admin/report/ReportLayout";
 
 function App() {
   return (
@@ -24,6 +29,13 @@ function App() {
           <Route index element={<AdminPage />} />
           <Route path="clients" element={<Clients />} />
           <Route path="time-slots" element={<TimeSlotsPage />} />
+          <Route path="appointments" element={<Appointments />} />
+          <Route path="reports">
+            <Route index element={<Reports />} />
+            <Route element={<ReportLayout />}>
+              <Route path=":reportId" element={<Report />} />
+            </Route>
+          </Route>
           <Route element={<AuthLayout />}>
             <Route path="registerAdmin" element={<RegisterAdmin />} />
           </Route>
@@ -32,8 +44,10 @@ function App() {
         <Route path="/" element={<HomeLayout />}>
           <Route index element={<Home />} />
           <Route path="/time-slots" element={<TimeSlotsPage />} />
+          <Route path="/appointments" element={<Appointments />} />
         </Route>
       </Routes>
+      <Toaster />
     </UserProvider>
   );
 }
