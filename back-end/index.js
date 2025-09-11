@@ -7,14 +7,11 @@ const app = express();
 const cors = require("cors");
 const cookiesParser = require("cookie-parser");
 
-const clientOrigin = {
-  development: "http://localhost:5173",
-  production: "https://abo-greda.vercel.app",
-};
+const clientOrigins = ["http://localhost:5173", "https://abo-greda.vercel.app"];
 
 app.use(
   cors({
-    origin: clientOrigin[process.env.NODE_ENV],
+    origin: clientOrigins,
     credentials: true,
   })
 );
@@ -53,8 +50,9 @@ app.use((error, req, res, next) => {
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: clientOrigin[process.env.NODE_ENV],
+    origin: clientOrigins,
     methods: "*",
+    credentials: true,
   },
 });
 
