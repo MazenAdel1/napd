@@ -7,8 +7,21 @@ const cors = require("cors");
 const cookiesParser = require("cookie-parser");
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://abo-greda.vercel.app"],
+  origin: [
+    "http://localhost:5173",
+    "https://abo-greda.vercel.app",
+    "https://abo-greda-production.up.railway.app",
+  ],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "Authorization",
+    "Cache-Control",
+  ],
 };
 
 app.use(cors(corsOptions));
@@ -38,6 +51,9 @@ app.use("/api/appointments", appointmentsRouter);
 app.use("/api/reports", reportsRouter);
 
 app.use((error, req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Credentials", "true");
+
   res.status(error.statusCode || 500).json({
     status: error.statusText || httpStatus.SERVER_ERROR.message,
     message: error.message,
@@ -52,6 +68,8 @@ const server = app.listen(PORT, "0.0.0.0", () => {
 
 const io = new Server(server, {
   cors: corsOptions,
+  allowEIO3: true,
+  transports: ["websocket", "polling"],
 });
 
 io.on("connection", (socket) => {
