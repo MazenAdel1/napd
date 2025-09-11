@@ -15,7 +15,13 @@ app.use(
     credentials: true,
   })
 );
-app.options("*", cors());
+app.options(
+  "*",
+  cors({
+    origin: clientOrigins,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookiesParser());
 
