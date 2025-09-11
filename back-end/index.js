@@ -56,6 +56,7 @@ app.use((error, req, res, next) => {
 
 const server = createServer(app);
 const io = new Server(server, {
+  transports: ["websocket"],
   cors: {
     origin: clientOrigins,
     methods: ["GET", "POST", "PATCH", "DELETE"],
@@ -103,6 +104,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "0,0,0,0", () => {
   console.log(`Server running on port ${PORT}`);
 });
