@@ -7,21 +7,13 @@ const app = express();
 const cors = require("cors");
 const cookiesParser = require("cookie-parser");
 
-const clientOrigins = ["http://localhost:5173", "https://abo-greda.vercel.app"];
+const corsOptions = {
+  origin: ["http://localhost:5173", "https://abo-greda.vercel.app"],
+  credentials: true,
+};
 
-app.use(
-  cors({
-    origin: clientOrigins,
-    credentials: true,
-  })
-);
-app.options(
-  "*",
-  cors({
-    origin: clientOrigins,
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(cookiesParser());
 
@@ -58,9 +50,8 @@ const server = createServer(app);
 const io = new Server(server, {
   transports: ["websocket"],
   cors: {
-    origin: clientOrigins,
     methods: ["GET", "POST", "PATCH", "DELETE"],
-    credentials: true,
+    ...corsOptions,
   },
 });
 
