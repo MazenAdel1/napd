@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const { createServer } = require("http");
 const { Server } = require("socket.io");
 
 const app = express();
@@ -46,12 +45,12 @@ app.use((error, req, res, next) => {
   });
 });
 
-const server = createServer(app);
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
 const io = new Server(server, {
-  cors: {
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    ...corsOptions,
-  },
+  cors: corsOptions,
 });
 
 io.on("connection", (socket) => {
@@ -92,8 +91,4 @@ io.on("connection", (socket) => {
       console.log("appointment NOT confirmed");
     }
   });
-});
-
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
 });
