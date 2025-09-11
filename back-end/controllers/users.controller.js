@@ -35,6 +35,7 @@ const getAllClients = asyncWrapper(async (req, res) => {
       role: "CLIENT",
     },
     ...(limit && { take: +limit }),
+    omit: { password: true },
   });
   return res.json({ status: httpStatus.SUCCESS, data: { clients } });
 });

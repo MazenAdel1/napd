@@ -7,16 +7,21 @@ const app = express();
 const cors = require("cors");
 const cookiesParser = require("cookie-parser");
 
+const clientOrigin = {
+  development: "http://localhost:5173",
+  production: "https://abo-greda.vercel.app",
+};
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: clientOrigin[process.env.NODE_ENV],
     credentials: true,
   })
 );
 app.use(express.json());
 app.use(cookiesParser());
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const { httpStatus } = require("./utils/consts");
 const { registerClient } = require("./controllers/users.controller");

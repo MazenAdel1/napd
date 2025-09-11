@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const socket = io("http://localhost:3000");
+export const socket = io("https://abo-greda-production.up.railway.app");
 
 export const getHoursMinutes = (ISOTime: string) => {
   const time = new Date(ISOTime);
@@ -57,3 +57,5 @@ export const weekday = [
   "الجمعة",
   "السبت",
 ];
+
+export const REQUIRED_FIELD_MESSAGE = "الرجاء إدخال البيانات المطلوبة";

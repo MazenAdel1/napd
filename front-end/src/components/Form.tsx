@@ -23,9 +23,7 @@ export default function Form<T extends Record<string, unknown>>(
 
   useEffect(() => {
     inputs.forEach((input) => {
-      if (input.type == "checkbox" && input.defaultValue == undefined) {
-        form.setValue(input.name, false as never);
-      } else if (input.hidden && input.defaultValue !== undefined) {
+      if (input.hidden && input.defaultValue !== undefined) {
         form.setValue(input.name, input.defaultValue as never);
       }
     });

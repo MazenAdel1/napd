@@ -60,9 +60,7 @@ export default function ReportCard(props: Partial<Report> | null) {
     report && (
       <div className="rounded-md shadow p-2 relative group border-t-2 border-blue-400">
         <h3 className="font-semibold">{report.appointment?.user.name}</h3>
-        {report.description?.split("\n").map((line, index) => (
-          <p key={index}>{line}</p>
-        ))}
+        <p className="whitespace-pre-wrap">{report.description}</p>
 
         <div className="absolute top-2 left-2 group-hover:opacity-100 opacity-0 transition-opacity flex items-center gap-2">
           <Dialog>

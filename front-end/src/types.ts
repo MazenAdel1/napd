@@ -37,6 +37,7 @@ export type User = {
   pastOperationsDesc: string;
   isTakingMedications: boolean;
   medicationsDesc: string;
+  healthStatus: string;
 };
 
 export type Slot = {

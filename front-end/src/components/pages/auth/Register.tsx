@@ -1,7 +1,7 @@
 import z from "zod";
 import { Link, useNavigate } from "react-router";
 import Form from "@/components/Form";
-import { socket } from "@/lib/utils";
+import { REQUIRED_FIELD_MESSAGE, socket } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -13,23 +13,24 @@ export default function Register() {
 
   const SCHEMA = z.object({
     name: z
-      .string({ error: "الاسم ثلاثي باللغة العربية" })
+      .string("يجب أن يكون الاسم ثلاثي باللغة العربية")
       .regex(/^([\u0600-\u06FF]+\s){2}[\u0600-\u06FF]+$/, {
-        error: "الاسم ثلاثي",
+        error: "يجب أن يكون الاسم ثلاثي باللغة العربية",
       }),
     phoneNumber: z
-      .string()
+      .string(REQUIRED_FIELD_MESSAGE)
       .regex(/^\d+$/, "يجب أن يحتوى رقم الهاتف على أرقام فقط")
       .length(11, { error: "رقم هاتف غير صحيح" }),
     password: z
-      .string()
+      .string(REQUIRED_FIELD_MESSAGE)
       .min(6, { error: "كلمة المرور يجب ان تكون على الاقل 6 حروف" }),
-    age: z.number(),
-    address: z.string(),
-    hasPastOperations: z.boolean(),
+    age: z.number(REQUIRED_FIELD_MESSAGE),
+    address: z.string(REQUIRED_FIELD_MESSAGE),
+    hasPastOperations: z.boolean().default(false).nonoptional(),
     pastOperationsDesc: z.string().optional(),
-    isTakingMedications: z.boolean(),
+    isTakingMedications: z.boolean().default(false).nonoptional(),
     medicationsDesc: z.string().optional(),
+    healthStatus: z.string().optional(),
   });
 
   type RegisterFormSchema = z.infer<typeof SCHEMA>;
@@ -96,6 +97,14 @@ export default function Register() {
       name: "medicationsDesc",
       type: "textarea",
       placeholder: "وصف الأدوية التي تستخدمها",
+      required: false,
+    },
+    {
+      id: "healthStatus",
+      label: "الحالة الصحية",
+      name: "healthStatus",
+      type: "textarea",
+      placeholder: "وصف الحالة الصحية (سكر - ضغط - ...)",
       required: false,
     },
   ];
