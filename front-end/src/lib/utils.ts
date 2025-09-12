@@ -7,7 +7,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const socket = io("https://abo-greda-production.up.railway.app");
+export const socket = io("https://abo-greda-production.up.railway.app", {
+  withCredentials: true,
+  transports: ["websocket", "polling"],
+  upgrade: true,
+  timeout: 20000,
+  forceNew: false,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
 
 export const getHoursMinutes = (ISOTime: string) => {
   const time = new Date(ISOTime);
