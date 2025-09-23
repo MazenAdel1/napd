@@ -104,7 +104,6 @@ const updateReport = asyncWrapper(async (req, res) => {
 
 const deleteReport = asyncWrapper(async (req, res) => {
   const { id } = req.params;
-  console.log(id);
 
   const report = await prisma.report.delete({
     where: { id },
