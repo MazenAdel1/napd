@@ -26,6 +26,11 @@ export type FormProps<T extends Record<string, unknown>> = {
   additionalContent?: React.ReactNode;
 };
 
+export type DataWrapper = {
+  limit?: number;
+  seeAllButton?: boolean;
+};
+
 export type User = {
   id: number;
   name: string;

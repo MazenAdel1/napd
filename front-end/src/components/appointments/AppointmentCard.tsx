@@ -10,7 +10,14 @@ import { getHoursMinutes, socket, weekday } from "@/lib/utils";
 import type { Appointment } from "@/types";
 import { UserContext } from "@/UserProvider";
 import { format } from "date-fns";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock,
+  Edit,
+  Eye,
+  LoaderCircle,
+} from "lucide-react";
 import { use, useRef, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
@@ -66,52 +73,66 @@ export default function AppointmentCard({ appointment }: Props) {
   return (
     <div
       key={appointment.id}
-      className="p-4 border rounded-md shadow relative group"
+      className="relative flex flex-col rounded-md border bg-white p-3 shadow"
     >
-      <h2 className="text-xl font-semibold">{appointment.user.name}</h2>
-      <h3 className="text-lg mb-2">{appointment.user.phoneNumber}</h3>
-      <p>
-        يوم {day} {formattedDate}
-      </p>
-      <div className="flex items-center gap-1">
-        <div>{getHoursMinutes(appointment.timeSlot.startTime)}</div>
-        <ArrowLeft />
-        <div>{getHoursMinutes(appointment.timeSlot.endTime)}</div>
-      </div>
-      {user?.role === "ADMIN" && appointment.status === "PENDING" && (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="w-full mt-3">تأكيد الحجز</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogClose className="sr-only" ref={closeRef} />
-            <p className="text-center">هل ترغب في تأكيد الحجز؟</p>
-            <Button
-              variant={"default"}
-              onClick={confirmAppointment}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <LoaderCircle className="animate-spin size-5" />
-              ) : (
-                "تأكيد"
-              )}
-            </Button>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {appointment.status === "PENDING" && (
-        <>
-          <Badge
-            variant={"default"}
-            className="text-base absolute top-2 left-2 group-hover:opacity-30 transition group-focus-within:opacity-30"
-          >
+      <div>
+        {appointment.status === "CONFIRMED" && (
+          <Badge variant={"success"} className="text-base">
+            <CheckCircle2 className="size-4!" />
+            تم تأكيد الحجز
+          </Badge>
+        )}
+        {appointment.status === "PENDING" && (
+          <Badge variant={"note"} className="text-base">
+            <Clock className="size-4!" />
             في انتظار تأكيد الحجز
           </Badge>
+        )}
+      </div>
+      <div className="my-auto flex flex-col py-4">
+        <h2 className="text-xl font-semibold">{appointment.user.name}</h2>
+        <h3 className="mb-2 text-lg">{appointment.user.phoneNumber}</h3>
+        <p>
+          يوم {day} {formattedDate}
+        </p>
+        <div className="flex items-center gap-1">
+          <div>{getHoursMinutes(appointment.timeSlot.startTime)}</div>
+          <ArrowLeft />
+          <div>{getHoursMinutes(appointment.timeSlot.endTime)}</div>
+        </div>
+      </div>
+
+      {appointment.status === "PENDING" && (
+        <div className="mt-3 flex w-full items-center gap-1 *:flex-1">
+          {user?.role === "ADMIN" && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant={"success"}>تأكيد الحجز</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogClose className="sr-only" ref={closeRef} />
+                <p className="text-center">هل ترغب في تأكيد الحجز؟</p>
+                <Button
+                  variant={"success"}
+                  onClick={confirmAppointment}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <LoaderCircle className="size-5 animate-spin" />
+                  ) : (
+                    "تأكيد"
+                  )}
+                </Button>
+              </DialogContent>
+            </Dialog>
+          )}
+
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant={"destructive"} className="w-full mt-2">
+              <Button
+                variant={"outline"}
+                className="border-red-600 bg-red-600/5 text-red-600 hover:bg-red-600/10 hover:text-red-600"
+              >
                 إلغاء الحجز
               </Button>
             </DialogTrigger>
@@ -125,40 +146,31 @@ export default function AppointmentCard({ appointment }: Props) {
                 onClick={cancelAppointment}
               >
                 {isSubmitting ? (
-                  <LoaderCircle className="animate-spin size-5" />
+                  <LoaderCircle className="size-5 animate-spin" />
                 ) : (
                   "إلغاء الحجز"
                 )}
               </Button>
             </DialogContent>
           </Dialog>
-        </>
+        </div>
       )}
 
       {appointment.status === "CONFIRMED" && (
-        <>
-          <Badge
-            variant={"success"}
-            className="text-base absolute top-2 left-2"
-          >
-            تم تأكيد الحجز
-          </Badge>
+        <div className="mt-auto w-full *:w-full">
           {user?.role === "ADMIN" &&
             (appointment.report ? (
-              <Badge
-                variant={"primary"}
-                className="text-base absolute bottom-2 left-2"
-                asChild
-              >
+              <Button variant={"default"} asChild>
                 <Link to={`/admin/reports/${appointment.report.id}`}>
+                  <Eye />
                   عرض التقرير
                 </Link>
-              </Badge>
+              </Button>
             ) : (
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant={"outline"} className="w-full mt-3">
-                    كتابة تقرير
+                  <Button variant={"outline"}>
+                    <Edit /> كتابة تقرير
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -170,7 +182,7 @@ export default function AppointmentCard({ appointment }: Props) {
                 </DialogContent>
               </Dialog>
             ))}
-        </>
+        </div>
       )}
     </div>
   );

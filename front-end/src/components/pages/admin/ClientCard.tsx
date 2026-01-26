@@ -37,11 +37,11 @@ export default function ClientCard({ client, setClients }: Props) {
   };
 
   return (
-    <ul className="border-t-4 border-green-400 relative group rounded-md flex flex-col gap-2 bg-white shadow-md p-3">
+    <ul className="group relative flex flex-col gap-2 overflow-y-auto rounded-md border-t-4 border-green-400 bg-white p-3 shadow-md">
       <Dialog>
         <DialogTrigger asChild>
           <Button
-            className="absolute top-2 left-2 group-hover:opacity-100 opacity-0 transition"
+            className="absolute top-2 left-2 opacity-0 transition group-hover:opacity-100"
             variant={"destructive"}
           >
             <Trash />
@@ -55,14 +55,14 @@ export default function ClientCard({ client, setClients }: Props) {
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <LoaderCircle className="animate-spin size-5" />
+              <LoaderCircle className="size-5 animate-spin" />
             ) : (
               "حذف"
             )}
           </Button>
         </DialogContent>
       </Dialog>
-      <li className="font-bold text-xl">
+      <li className="text-xl font-bold">
         {client.name} - {client.age} سنة
       </li>
       <li className="flex items-center gap-2">
@@ -100,10 +100,13 @@ export default function ClientCard({ client, setClients }: Props) {
       </li>
 
       {!!client.healthStatus && (
-        <li className="flex items-center gap-2">
-          <Activity size={14} />
-          <p className="whitespace-pre-wrap">{client.healthStatus}</p>
-        </li>
+        <>
+          <hr className="my-1" />
+          <li className="flex items-center gap-2">
+            <Activity size={14} />
+            <p className="whitespace-pre-wrap">{client.healthStatus}</p>
+          </li>
+        </>
       )}
     </ul>
   );

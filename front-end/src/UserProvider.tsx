@@ -22,6 +22,8 @@ export default function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
+        setIsLoading(true);
+
         const { user } = (
           await axios.get("/users/getUserByToken", {
             withCredentials: true,

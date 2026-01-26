@@ -14,14 +14,14 @@ export default function AdminLayout() {
   }, [isLoading, router, user]);
 
   if (isLoading)
-    return <LoaderCircle className="animate-spin mx-auto size-10 mt-5" />;
+    return <LoaderCircle className="mx-auto mt-5 size-10 animate-spin" />;
 
   return (
     user?.role === "ADMIN" && (
       <SidebarProvider>
         <AdminSidebar />
-        <main className="px-4 w-full">
-          <SidebarTrigger className="-mr-4 ml-4" />
+        <SidebarTrigger />
+        <main className="w-full py-3 pr-10 pl-4">
           <Outlet />
         </main>
       </SidebarProvider>

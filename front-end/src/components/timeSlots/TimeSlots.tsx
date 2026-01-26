@@ -40,24 +40,24 @@ export default function TimeSlots({ setStep, date }: Props) {
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <Button onClick={() => setStep("choose_date")}>الرجوع</Button>
         {user?.role == "ADMIN" && date && (
           <AddTimeSlot date={date} setSlots={setSlots} />
         )}
       </div>
       <div className="flex flex-col gap-2">
-        <h1 className="sm:text-2xl text-xl">
+        <h1 className="text-xl sm:text-2xl">
           المواعيد الحالية ليوم {weekday[date.getDay()]} {formattedDate}
         </h1>
         {isLoading ? (
-          <div className="grid xl:grid-cols-6 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="block h-14 w-full bg-gray-300" />
             ))}
           </div>
         ) : slots.length > 0 ? (
-          <div className="grid xl:grid-cols-6 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {slots.map((slot) => (
               <TimeSlotCard key={slot.id} slot={slot} setSlots={setSlots} />
             ))}

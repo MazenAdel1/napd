@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Appointment } from "@/types";
+import type { Appointment, DataWrapper } from "@/types";
 import axios from "@/lib/axios";
 import { use, useEffect, useState } from "react";
 import AppointmentCard from "./AppointmentCard";
@@ -7,8 +7,9 @@ import { socket } from "@/lib/utils";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { UserContext } from "@/UserProvider";
+import DataTemplate from "../DataTemplate";
 
-export default function Appointments({ limit }: { limit?: number }) {
+export default function Appointments({ limit, seeAllButton }: DataWrapper) {
   const { user } = use(UserContext);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,14 +37,14 @@ export default function Appointments({ limit }: { limit?: number }) {
         prev.map((appointment) =>
           appointment.id === confirmedAppointment.id
             ? confirmedAppointment
-            : appointment
-        )
+            : appointment,
+        ),
       );
     });
 
     socket.on("appointment canceled", (canceledAppointment) => {
       setAppointments((prev) =>
-        prev.filter((appointment) => appointment.id !== canceledAppointment.id)
+        prev.filter((appointment) => appointment.id !== canceledAppointment.id),
       );
     });
 
@@ -56,7 +57,7 @@ export default function Appointments({ limit }: { limit?: number }) {
 
   if (isLoading)
     return (
-      <div className="grid gap-3 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {" "}
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="block h-52 w-full bg-gray-300" />
@@ -71,18 +72,16 @@ export default function Appointments({ limit }: { limit?: number }) {
           <Link to="..">الرجوع</Link>
         </Button>
       )}
-      {appointments.length > 0 ? (
-        <div>
-          <h1 className="text-3xl font-bold py-3">الحجوزات</h1>
-          <div className="grid gap-5 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
-            {appointments.map((appointment) => (
-              <AppointmentCard appointment={appointment} key={appointment.id} />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <p className="text-xl font-semibold py-2">لا يوجد حجوزات</p>
-      )}
+      <DataTemplate
+        data={appointments}
+        title="الحجوزات"
+        link="/admin/appointments"
+        seeAllButton={seeAllButton}
+      >
+        {appointments.map((appointment) => (
+          <AppointmentCard appointment={appointment} key={appointment.id} />
+        ))}
+      </DataTemplate>
     </>
   );
 }

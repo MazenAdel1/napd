@@ -1,11 +1,12 @@
 import { socket } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import axios from "@/lib/axios";
-import type { User } from "@/types";
+import type { DataWrapper, User } from "@/types";
 import ClientCard from "./ClientCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import DataTemplate from "@/components/DataTemplate";
 
-export default function Clients({ limit }: { limit?: number }) {
+export default function Clients({ limit, seeAllButton }: DataWrapper) {
   const [clients, setClients] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,7 +34,7 @@ export default function Clients({ limit }: { limit?: number }) {
 
   if (isLoading)
     return (
-      <div className="grid gap-3 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="block h-52 w-full bg-gray-300" />
         ))}
@@ -41,21 +42,15 @@ export default function Clients({ limit }: { limit?: number }) {
     );
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold py-3">العملاء</h1>
-      <div className="grid gap-3 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1">
-        {clients.length > 0 ? (
-          clients.map((client) => (
-            <ClientCard
-              client={client}
-              key={client.id}
-              setClients={setClients}
-            />
-          ))
-        ) : (
-          <p>لا يوجد عملاء</p>
-        )}
-      </div>
-    </div>
+    <DataTemplate
+      data={clients}
+      title="العملاء"
+      link="/admin/clients"
+      seeAllButton={seeAllButton}
+    >
+      {clients.map((client) => (
+        <ClientCard client={client} key={client.id} setClients={setClients} />
+      ))}
+    </DataTemplate>
   );
 }

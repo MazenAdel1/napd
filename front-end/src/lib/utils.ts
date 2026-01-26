@@ -7,7 +7,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const socket = io("https://abo-greda-production.up.railway.app", {
+// "https://abo-greda-production.up.railway.app"
+export const socket = io("localhost:3000", {
   withCredentials: true,
   transports: ["websocket", "polling"],
   upgrade: true,
@@ -25,7 +26,7 @@ export const getHoursMinutes = (ISOTime: string) => {
 
   const hours =
     hoursIn24 == 0 ? 12 : hoursIn24 > 12 ? hoursIn24 - 12 : hoursIn24;
-  const amOrPm = hoursIn24 > 12 ? "مساء" : "صباحا";
+  const amOrPm = hoursIn24 > 12 ? "م" : "ص";
 
   return `${hours.toString().padStart(2, "0")}:${minutes
     .toString()
@@ -53,7 +54,7 @@ export const sortedTimeSlots = (slots: Slot[]) => {
   return slots.sort(
     (a, b) =>
       (new Date(a.startTime) as unknown as number) -
-      (new Date(b.startTime) as unknown as number)
+      (new Date(b.startTime) as unknown as number),
   );
 };
 

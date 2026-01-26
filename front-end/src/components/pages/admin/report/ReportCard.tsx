@@ -54,15 +54,17 @@ export default function ReportCard(props: Partial<Report> | null) {
     }
   };
 
-  if (isLoading) return <Skeleton className="bg-gray-300 block h-28" />;
+  if (isLoading) return <Skeleton className="block h-28 bg-gray-300" />;
 
   return (
     report && (
-      <div className="rounded-md shadow p-2 relative group border-t-2 border-blue-400">
-        <h3 className="font-semibold">{report.appointment?.user.name}</h3>
+      <div className="group relative rounded-md border-t-2 border-blue-400 bg-white p-3 shadow">
+        <h3 className="text-lg font-semibold">
+          {report.appointment?.user.name}
+        </h3>
         <p className="whitespace-pre-wrap">{report.description}</p>
 
-        <div className="absolute top-2 left-2 group-hover:opacity-100 opacity-0 transition-opacity flex items-center gap-2">
+        <div className="absolute top-2 left-2 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
           <Dialog>
             <DialogTrigger asChild>
               <Button>
@@ -96,7 +98,7 @@ export default function ReportCard(props: Partial<Report> | null) {
                 disabled={isDeleting}
               >
                 {isDeleting ? (
-                  <LoaderCircle className="animate-spin size-5" />
+                  <LoaderCircle className="size-5 animate-spin" />
                 ) : (
                   "حذف"
                 )}

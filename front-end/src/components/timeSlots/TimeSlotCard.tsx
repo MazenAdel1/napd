@@ -46,7 +46,7 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
           {},
           {
             params: { id: slotId },
-          }
+          },
         )
       ).data.data;
 
@@ -58,7 +58,7 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
             return timeSlot;
           }
           return slot;
-        })
+        }),
       );
     } catch (error) {
       toast(
@@ -68,7 +68,7 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
             label: "حسناً",
             onClick: () => {},
           },
-        }
+        },
       );
       closeRef.current?.click();
     } finally {
@@ -79,13 +79,13 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
   return (
     <div
       key={slot.id}
-      className="text-black bg-white shadow border-2 border-t-green-400 flex flex-col w-fit p-2 rounded-md gap-2 group relative"
+      className="group relative flex flex-col gap-2 rounded-md border-2 border-t-green-400 bg-white p-2 text-black shadow"
     >
       {user?.role == "ADMIN" && (
         <Dialog>
           <DialogTrigger asChild>
             <Button
-              className="absolute top-1/2 -translate-y-1/2 left-2 group-hover:opacity-100 opacity-0 transition"
+              className="absolute top-1/2 left-2 -translate-y-1/2 opacity-0 transition group-hover:opacity-100"
               variant={"destructive"}
             >
               <Trash />
@@ -99,7 +99,7 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <LoaderCircle className="animate-spin size-5" />
+                <LoaderCircle className="size-5 animate-spin" />
               ) : (
                 "حذف"
               )}
@@ -107,9 +107,9 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
           </DialogContent>
         </Dialog>
       )}
-      <div className="flex items-center gap-1 sm:text-base text-sm">
+      <div className="flex items-center gap-1 text-sm font-semibold sm:text-base">
         <div>{getHoursMinutes(slot.startTime)}</div>
-        <ArrowLeft />
+        <ArrowLeft className="size-4.5" />
         <div>{getHoursMinutes(slot.endTime)}</div>
       </div>
       <div>
@@ -122,7 +122,7 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
                 user?.role as keyof typeof user
               ],
 
-              slot.appointment?.userId == user?.id && "text-blue-500"
+              slot.appointment?.userId == user?.id && "text-blue-500",
             )}
           >
             {timeSlotStatus[slot.status].text}{" "}
@@ -139,7 +139,7 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
         slot.status == "AVAILABLE" &&
         (new Date(slot.startTime) > new Date() ? (
           <Dialog>
-            <DialogTrigger asChild>
+            <DialogTrigger asChild className="mt-auto h-8">
               <Button>احجز</Button>
             </DialogTrigger>
             <DialogContent>
@@ -147,7 +147,7 @@ export default function TimeSlotCard({ slot, setSlots }: Props) {
               <p className="text-center">هل أنت متأكد من حجز هذا الموعد؟</p>
               <Button onClick={() => bookSlot(slot.id)} disabled={isSubmitting}>
                 {isSubmitting ? (
-                  <LoaderCircle className="animate-spin size-5" />
+                  <LoaderCircle className="size-5 animate-spin" />
                 ) : (
                   "حجز"
                 )}

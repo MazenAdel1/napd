@@ -4,6 +4,13 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import {
+  Calendar,
+  CalendarCheck,
+  NotebookText,
+  User,
+  Users,
+} from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 export default function AdminSidebar() {
@@ -16,27 +23,34 @@ export default function AdminSidebar() {
     {
       title: "العملاء",
       link: "/admin/clients",
+      icon: Users,
     },
     {
       title: "الأوقات المتاحة",
       link: "/admin/time-slots",
+      icon: Calendar,
     },
     {
       title: "الحجوزات",
       link: "/admin/appointments",
+      icon: CalendarCheck,
     },
     {
       title: "التقارير",
       link: "/admin/reports",
+      icon: NotebookText,
     },
     {
       title: "إضافة مسئول",
       link: "/admin/registerAdmin",
+      icon: User,
     },
   ];
   return (
-    <Sidebar side="right" className="px-2 bg-gray-100">
-      <SidebarHeader className="text-2xl font-bold">صفحة المسئول</SidebarHeader>
+    <Sidebar side="right" className="bg-white px-2 shadow *:bg-white">
+      <SidebarHeader className="bg-transparent text-2xl font-bold">
+        صفحة المسئول
+      </SidebarHeader>
       <SidebarContent>
         <ul className="mt-4 flex flex-col gap-2">
           {LINKS.map((link) => (
@@ -44,12 +58,13 @@ export default function AdminSidebar() {
               <Link
                 to={link.link}
                 className={cn(
-                  `block text-lg p-2 rounded-md border-2 border-gray-200 hover:bg-gray-100 transition`,
+                  `flex items-center gap-2 rounded-md border-gray-200 p-2 text-lg transition hover:bg-gray-100`,
                   router.pathname === link.link
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : ""
+                    ? "bg-cyan-600 text-white hover:bg-cyan-700"
+                    : "",
                 )}
               >
+                {link.icon && <link.icon className="size-5" />}
                 {link.title}
               </Link>
             </li>
