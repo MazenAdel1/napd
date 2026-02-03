@@ -1,54 +1,64 @@
+require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
   // Create some times
-  const time1 = await prisma.time.create({
-    data: { time: new Date("2025-08-12T09:00:00Z") },
-  });
-  const time2 = await prisma.time.create({
-    data: { time: new Date("2025-08-12T10:00:00Z") },
-  });
-
-  // Create users
-  const user1 = await prisma.user.create({
+  const time1 = await prisma.timeSlot.create({
     data: {
-      name: "John Doe",
-      phoneNumber: "1234567890",
-      age: 30,
-      address: "123 Main St",
-      hasPastOperations: true,
-      pastOperationsDesc: "Appendix removal",
-      isTakingMedications: true,
-      medicationsDesc: "Painkillers",
+      startTime: new Date("2026-02-03T09:00:00Z"),
+      endTime: new Date("2026-02-03T10:00:00Z"),
+      date: new Date("2026-02-03"),
+    },
+  });
+  const time2 = await prisma.timeSlot.create({
+    data: {
+      startTime: new Date("2026-02-03T11:00:00Z"),
+      endTime: new Date("2026-02-03T12:00:00Z"),
+      date: new Date("2026-02-03"),
     },
   });
 
-  const user2 = await prisma.user.create({
+  const bcrypt = require("bcryptjs");
+  const adminPassword = await bcrypt.hash("134652", 10);
+
+  // Create ADMIN
+  await prisma.user.create({
     data: {
-      name: "Jane Smith",
-      phoneNumber: "9876543210",
+      name: "مازن عادل منيسي",
+      phoneNumber: "01008142981",
+      role: "ADMIN",
+      password: adminPassword,
+    },
+  });
+
+  const clientPassword = await bcrypt.hash("123132", 10);
+
+  // Create CLIENT
+  const client = await prisma.user.create({
+    data: {
+      name: "محمد أحمد محمود",
+      phoneNumber: "01012312312",
       age: 25,
-      address: "456 Elm St",
+      address: "الشارع الجديد",
       hasPastOperations: false,
-      pastOperationsDesc: "",
       isTakingMedications: false,
-      medicationsDesc: "",
+      password: clientPassword,
     },
   });
 
   // Create appointments
   await prisma.appointment.create({
     data: {
-      userId: user1.id,
-      timeId: time1.id,
+      userId: client.id,
+      timeSlotId: time1.id,
     },
   });
 
   await prisma.appointment.create({
     data: {
-      userId: user2.id,
-      timeId: time2.id,
+      userId: client.id,
+      timeSlotId: time2.id,
     },
   });
 

@@ -7,8 +7,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// "https://abo-greda-production.up.railway.app"
-export const socket = io("localhost:3000", {
+const socketUrl =
+  import.meta.env.VITE_BASE_URL?.replace(/\/api\/?$/, "") ||
+  "http://localhost:3000";
+
+export const socket = io(socketUrl, {
   withCredentials: true,
   transports: ["websocket", "polling"],
   upgrade: true,
@@ -37,15 +40,15 @@ export const timeSlotStatus = {
   AVAILABLE: {
     text: "متاح",
     styles: {
-      CLIENT: "text-green-500",
-      ADMIN: "text-blue-500",
+      CLIENT: "text-green-500 bg-green-50 rounded-lg px-2 py-1",
+      ADMIN: "text-blue-500 bg-blue-50 rounded-lg px-2 py-1",
     },
   },
   BOOKED: {
     text: "محجوز",
     styles: {
-      CLIENT: "text-red-500",
-      ADMIN: "text-green-500",
+      CLIENT: "text-red-500 bg-red-50 rounded-lg px-2 py-1",
+      ADMIN: "text-green-500 bg-green-50 rounded-lg px-2 py-1",
     },
   },
 };

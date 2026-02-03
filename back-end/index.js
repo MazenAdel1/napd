@@ -1,6 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
+const { PrismaClient } = require("@prisma/client");
+const { withAccelerate } = require("@prisma/extension-accelerate");
+
+const prisma = new PrismaClient().$extends(withAccelerate());
 
 const app = express();
 const cors = require("cors");
@@ -72,6 +77,31 @@ const io = new Server(server, {
   transports: ["websocket", "polling"],
 });
 
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.headers.cookie
+      ?.split("; ")
+      .find((c) => c.startsWith("token="))
+      ?.split("=")[1];
+
+    if (!token) {
+      return next(new Error("Authentication required"));
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+
+    if (!user) {
+      return next(new Error("User not found"));
+    }
+
+    socket.user = user;
+    next();
+  } catch (error) {
+    next(new Error("Invalid token"));
+  }
+});
+
 io.on("connection", (socket) => {
   socket.on("add client", async (data) => {
     try {
@@ -94,6 +124,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("cancel appointment", async (data) => {
+    if (socket.user.role !== "ADMIN" && socket.user.id !== data.userId) {
+      throw new Error("Unauthorized");
+    }
+
     try {
       const canceledAppointment = await cancelAppointment(data.appointmentId);
       io.emit("appointment canceled", canceledAppointment);
@@ -103,6 +137,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("confirm appointment", async (data) => {
+    if (socket.user.role !== "ADMIN") {
+      throw new Error("Unauthorized");
+    }
+
     try {
       const confirmedAppointment = await confirmAppointment(data.appointmentId);
       io.emit("appointment confirmed", confirmedAppointment);
