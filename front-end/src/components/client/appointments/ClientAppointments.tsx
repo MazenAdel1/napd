@@ -1,13 +1,14 @@
-import type { Appointment, DataWrapper } from "@/types";
+import type { DataWrapper } from "@/types";
 import axios from "@/lib/axios";
 import { use, useEffect, useState } from "react";
-import { socket } from "@/lib/utils";
+import { socket } from "@/lib/consts";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { UserContext } from "@/UserProvider";
 import DataTemplate from "@/components/shared/DataTemplate";
 import { ArrowRight } from "lucide-react";
 import ClientAppointmentCard from "./ClientAppointmentCard";
+import type { Appointment } from "@/components/shared/appointments";
 
 export default function ClientAppointments({
   limit,
@@ -30,12 +31,12 @@ export default function ClientAppointments({
       setIsLoading(false);
     })();
 
-    socket.on("appointment added", (newAppointment) => {
+    socket.on("appointment added", (newAppointment: Appointment) => {
       if (newAppointment.user.id === user?.id)
         setAppointments((prev) => [newAppointment, ...prev]);
     });
 
-    socket.on("appointment confirmed", (confirmedAppointment) => {
+    socket.on("appointment confirmed", (confirmedAppointment: Appointment) => {
       setAppointments((prev) =>
         prev.map((appointment) =>
           appointment.id === confirmedAppointment.id
@@ -45,7 +46,7 @@ export default function ClientAppointments({
       );
     });
 
-    socket.on("appointment canceled", (canceledAppointment) => {
+    socket.on("appointment canceled", (canceledAppointment: Appointment) => {
       setAppointments((prev) =>
         prev.filter((appointment) => appointment.id !== canceledAppointment.id),
       );

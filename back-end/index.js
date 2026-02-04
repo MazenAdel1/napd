@@ -84,25 +84,23 @@ io.use(async (socket, next) => {
       .find((c) => c.startsWith("token="))
       ?.split("=")[1];
 
-    if (!token) {
-      return next(new Error("Authentication required"));
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+      if (user) {
+        socket.user = user;
+      }
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
-
-    if (!user) {
-      return next(new Error("User not found"));
-    }
-
-    socket.user = user;
+    // Allow connection even without auth (for registration)
     next();
   } catch (error) {
-    next(new Error("Invalid token"));
+    // Allow connection even if token is invalid
+    next();
   }
 });
 
 io.on("connection", (socket) => {
+  // Registration doesn't require authentication
   socket.on("add client", async (data) => {
     try {
       const newClient = await registerClient(data);
@@ -115,6 +113,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("add appointment", async (data) => {
+    if (!socket.user) {
+      return socket.emit("error", { message: "Authentication required" });
+    }
     try {
       const newAppointment = await getAppointmentBySlotId(data.slotId);
       io.emit("appointment added", newAppointment);
@@ -124,21 +125,40 @@ io.on("connection", (socket) => {
   });
 
   socket.on("cancel appointment", async (data) => {
-    if (socket.user.role !== "ADMIN" && socket.user.id !== data.userId) {
-      throw new Error("Unauthorized");
+    if (!socket.user) {
+      return socket.emit("error", { message: "Authentication required" });
     }
 
     try {
+      const appointment = await prisma.appointment.findUnique({
+        where: { id: data.appointmentId },
+      });
+
+      if (!appointment) {
+        return socket.emit("error", { message: "Appointment not found" });
+      }
+
+      if (
+        socket.user.role !== "ADMIN" &&
+        socket.user.id !== appointment.userId
+      ) {
+        return socket.emit("error", { message: "Unauthorized" });
+      }
+
       const canceledAppointment = await cancelAppointment(data.appointmentId);
       io.emit("appointment canceled", canceledAppointment);
-    } catch {
-      console.log("appointment NOT canceled");
+    } catch (error) {
+      console.log("appointment NOT canceled", error);
+      socket.emit("error", { message: "Failed to cancel appointment" });
     }
   });
 
   socket.on("confirm appointment", async (data) => {
+    if (!socket.user) {
+      return socket.emit("error", { message: "Authentication required" });
+    }
     if (socket.user.role !== "ADMIN") {
-      throw new Error("Unauthorized");
+      return socket.emit("error", { message: "Unauthorized" });
     }
 
     try {

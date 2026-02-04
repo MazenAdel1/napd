@@ -1,4 +1,5 @@
 import axios from "@/lib/axios";
+import { reconnectSocket, disconnectSocket } from "@/lib/consts";
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "./types";
 
@@ -31,12 +32,18 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         ).data.data;
 
         setUser(user);
+        // Reconnect socket to refresh auth credentials
+        reconnectSocket();
       } catch {
         setUser(null);
       } finally {
         setIsLoading(false);
       }
     })();
+
+    return () => {
+      disconnectSocket();
+    };
   }, []);
 
   return (

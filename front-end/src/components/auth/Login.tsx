@@ -1,4 +1,3 @@
-import z from "zod";
 import { Link, useNavigate } from "react-router";
 import Form from "@/components/shared/Form";
 import type { FormProps } from "@/types";
@@ -8,50 +7,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useContext } from "react";
 import { UserContext } from "@/UserProvider";
+import { LOGIN_INPUTS, LOGIN_SCHEMA } from "./consts";
+import type { LoginFormSchema } from "./types";
+import { reconnectSocket } from "@/lib/consts";
 
 export default function Login() {
   const { setUser } = useContext(UserContext);
 
-  const SCHEMA = z.object({
-    name: z
-      .string({ error: "الاسم ثلاثي باللغة العربية" })
-      .regex(/^([\u0600-\u06FF]+\s){2}[\u0600-\u06FF]+$/, {
-        error: "الاسم ثلاثي",
-      }),
-    phoneNumber: z
-      .string({ error: "رقم هاتف غير صحيح" })
-      .min(11, { error: "رقم هاتف غير صحيح" }),
-    password: z.string({ error: "كلمة المرور غير صحيحة" }),
-  });
-
-  type LoginFormSchema = z.infer<typeof SCHEMA>;
-
-  const INPUTS: FormProps<LoginFormSchema>["inputs"] = [
-    {
-      id: "name",
-      label: "الاسم",
-      name: "name",
-      type: "text",
-      placeholder: "أدخل اسمك ثلاثي",
-    },
-    {
-      id: "phoneNumber",
-      label: "رقم الهاتف",
-      name: "phoneNumber",
-      type: "tel",
-      placeholder: "أدخل رقم هاتفك",
-    },
-    {
-      id: "password",
-      label: "كلمة المرور",
-      name: "password",
-      type: "password",
-      placeholder: "ادخل كلمة المرور",
-    },
-  ];
-
   const form = useForm<LoginFormSchema>({
-    resolver: zodResolver(SCHEMA),
+    resolver: zodResolver(LOGIN_SCHEMA),
   });
 
   const router = useNavigate();
@@ -72,6 +36,7 @@ export default function Login() {
       ).data.data;
 
       setUser(user);
+      reconnectSocket(); // Reconnect socket with new auth credentials
 
       if (user.role === "ADMIN") router("/admin");
       else router("/");
@@ -86,7 +51,7 @@ export default function Login() {
   return (
     <Form
       form={form}
-      inputs={INPUTS}
+      inputs={LOGIN_INPUTS}
       onSubmit={onSubmit}
       submitText="تسجيل الدخول"
       additionalContent={

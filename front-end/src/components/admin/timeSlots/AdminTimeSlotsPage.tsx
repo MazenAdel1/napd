@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { TimeSlotsCalendar } from "@/components/shared/timeSlots";
+import { TimeSlotsCalendar, type Status } from "@/components/shared/timeSlots";
 import AdminTimeSlots from "./AdminTimeSlots";
-
-export type Status = "choose_date" | "slots";
 
 export default function AdminTimeSlotsPage() {
   const [date, setDate] = useState<Date>();

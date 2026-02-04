@@ -1,11 +1,6 @@
 import { Calendar } from "@/components/ui/calendar";
 import { ar } from "date-fns/locale";
-
-export type TimeSlotsCalendarProps = {
-  date: Date | undefined;
-  setDate: (date: Date | undefined) => void;
-  header?: React.ReactNode;
-};
+import type { TimeSlotsCalendarProps } from "./types";
 
 export default function TimeSlotsCalendar({
   date,

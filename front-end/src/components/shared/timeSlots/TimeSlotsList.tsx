@@ -1,19 +1,12 @@
-import { cn, sortedTimeSlots, weekday } from "@/lib/utils";
+import { cn, sortedTimeSlots } from "@/lib/utils";
 import React, { use, useEffect, useState } from "react";
-import type { Slot } from "@/types";
+import type { Slot } from "@/components/shared/timeSlots";
 import axios from "@/lib/axios";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SidebarContext } from "@/components/ui/sidebar";
-
-export type TimeSlotsListProps = {
-  date: Date;
-  header?: React.ReactNode;
-  renderSlot: (
-    slot: Slot,
-    setSlots: React.Dispatch<React.SetStateAction<Slot[]>>,
-  ) => React.ReactNode;
-};
+import type { TimeSlotsListProps } from "./types";
+import { weekdays } from "@/lib/consts";
 
 export default function TimeSlotsList({
   date,
@@ -47,7 +40,7 @@ export default function TimeSlotsList({
       {header}
       <div className="flex flex-col gap-2">
         <h1 className="text-xl sm:text-2xl">
-          المواعيد الحالية ليوم {weekday[date.getDay()]} {formattedDate}
+          المواعيد الحالية ليوم {weekdays[date.getDay()]} {formattedDate}
         </h1>
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

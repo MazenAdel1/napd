@@ -1,6 +1,7 @@
 import React from "react";
 import type { Path, UseFormReturn } from "react-hook-form";
 import type { ClassNameValue } from "tailwind-merge";
+import type { Appointment } from "./components/shared/appointments/types";
 
 type InputType = HTMLInputElement["type"];
 
@@ -43,25 +44,6 @@ export type User = {
   isTakingMedications: boolean;
   medicationsDesc: string;
   healthStatus: string;
-};
-
-export type Slot = {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: "AVAILABLE" | "BOOKED";
-  appointment: Appointment;
-};
-
-export type Appointment = {
-  id: string;
-  user: User;
-  userId: User["id"];
-  timeSlot: Slot;
-  timeSlotId: Slot["id"];
-  status: "PENDING" | "CONFIRMED";
-  report: Report;
 };
 
 export type Report = {

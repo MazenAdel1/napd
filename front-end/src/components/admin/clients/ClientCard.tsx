@@ -1,16 +1,10 @@
-import type { User } from "@/types";
 import { Activity, Hospital, MapPin, Phone, Pill } from "lucide-react";
-import type React from "react";
 import axios from "@/lib/axios";
 import { useState } from "react";
 import ActionsMenu from "@/components/shared/ActionsMenu";
+import type { ClientCardProps } from "./types";
 
-type Props = {
-  client: User;
-  setClients: React.Dispatch<React.SetStateAction<User[]>>;
-};
-
-export default function ClientCard({ client, setClients }: Props) {
+export default function ClientCard({ client, setClients }: ClientCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteUser = async () => {

@@ -51,7 +51,7 @@ const addTimeSlot = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "لا يمكن ان يكون التاريخ قبل اليوم",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -64,7 +64,7 @@ const addTimeSlot = asyncWrapper(async (req, res, next) => {
       const error = appError.create(
         "لا يمكن ان يكون وقت البدء قبل الآن",
         httpStatus.BAD_REQUEST.code,
-        httpStatus.BAD_REQUEST.message
+        httpStatus.BAD_REQUEST.message,
       );
       return next(error);
     }
@@ -74,7 +74,7 @@ const addTimeSlot = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "يجب أن يكون وقت الانتهاء بعد وقت البدء",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -91,7 +91,7 @@ const addTimeSlot = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "الموعد موجود بالفعل",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -113,53 +113,63 @@ const addMultipleTimeSlots = asyncWrapper(async (req, res, next) => {
   const newDate = new Date(date);
   newDate.setUTCHours(0, 0, 0, 0);
 
-  const newStartTime = new Date(newDate);
-  newStartTime.setHours(
-    +slotsStartTime.split(":")[0],
-    +slotsStartTime.split(":")[1]
-  );
-  let startHour = newStartTime.getHours();
+  // Parse start time into total minutes from midnight
+  const [startHours, startMinutes] = slotsStartTime.split(":").map(Number);
+  let currentMinutes = startHours * 60 + startMinutes;
 
-  const newEndTime = new Date(newDate);
-  newEndTime.setHours(+slotsEndTime.split(":")[0], +slotsEndTime.split(":")[1]);
-  const endHour = newEndTime.getHours();
+  // Parse end time into total minutes from midnight
+  const [endHours, endMinutes] = slotsEndTime.split(":").map(Number);
+  const endTotalMinutes = endHours * 60 + endMinutes;
+
+  // slotDuration is in minutes
+  const durationInMinutes = +slotDuration;
 
   let slots = [];
 
-  if (startHour + +slotDuration >= endHour) {
+  if (currentMinutes + durationInMinutes > endTotalMinutes) {
     const error = appError.create(
       "يجب أن تكون بداية المواعيد قبل النهاية",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
 
-  while (startHour + +slotDuration <= endHour) {
+  while (currentMinutes + durationInMinutes <= endTotalMinutes) {
+    const slotStartHour = Math.floor(currentMinutes / 60);
+    const slotStartMinute = currentMinutes % 60;
+
+    const slotEndMinutes = currentMinutes + durationInMinutes;
+    const slotEndHour = Math.floor(slotEndMinutes / 60);
+    const slotEndMinute = slotEndMinutes % 60;
+
+    const slotStartTime = new Date(
+      new Date(date).setHours(slotStartHour, slotStartMinute, 0, 0),
+    );
+    const slotEndTime = new Date(
+      new Date(date).setHours(slotEndHour, slotEndMinute, 0, 0),
+    );
+
     const existingTimeSlot = await prisma.timeSlot.findFirst({
       where: {
         date: newDate,
-        startTime: new Date(new Date(date).setHours(startHour, 0, 0, 0)),
-        endTime: new Date(
-          new Date(date).setHours(startHour + +slotDuration, 0, 0, 0)
-        ),
+        startTime: slotStartTime,
+        endTime: slotEndTime,
       },
     });
 
     if (existingTimeSlot) {
-      startHour += +slotDuration;
+      currentMinutes += durationInMinutes;
       continue;
     }
 
     slots.push({
       date: newDate,
-      startTime: new Date(new Date(date).setHours(startHour, 0, 0, 0)),
-      endTime: new Date(
-        new Date(date).setHours(startHour + +slotDuration, 0, 0, 0)
-      ),
+      startTime: slotStartTime,
+      endTime: slotEndTime,
     });
 
-    startHour += +slotDuration;
+    currentMinutes += durationInMinutes;
   }
 
   const data = await prisma.timeSlot.createManyAndReturn({
@@ -194,7 +204,7 @@ const bookTimeSlot = asyncWrapper(async (req, res) => {
       throw appError.create(
         "لا يمكن حجز موعد في وقت مضى",
         httpStatus.BAD_REQUEST.code,
-        httpStatus.BAD_REQUEST.message
+        httpStatus.BAD_REQUEST.message,
       );
     }
 
@@ -202,7 +212,7 @@ const bookTimeSlot = asyncWrapper(async (req, res) => {
       throw appError.create(
         "تم حجز هذا الموعد بالفعل",
         httpStatus.BAD_REQUEST.code,
-        httpStatus.BAD_REQUEST.message
+        httpStatus.BAD_REQUEST.message,
       );
     }
 

@@ -11,12 +11,14 @@ import {
   ReportLayout,
   RegisterAdmin,
 } from "./components/admin";
+
 import {
   ClientLayout,
   Home,
   ClientTimeSlotsPage,
   ClientAppointments,
 } from "./components/client";
+
 import UserProvider from "./UserProvider";
 import { Toaster } from "./components/ui/sonner";
 

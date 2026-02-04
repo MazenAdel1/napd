@@ -1,4 +1,3 @@
-import type { Slot } from "@/types";
 import {
   Dialog,
   DialogClose,
@@ -7,19 +6,20 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle } from "lucide-react";
-import { cn, socket } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { socket } from "@/lib/consts";
 import { Link } from "react-router";
 import { use, useRef, useState } from "react";
 import axios from "@/lib/axios";
 import axs from "axios";
 import { toast } from "sonner";
 import { UserContext } from "@/UserProvider";
-import { TimeSlotCardBase } from "@/components/shared/timeSlots";
-
-type Props = {
-  slot: Slot;
-  setSlots: React.Dispatch<React.SetStateAction<Slot[]>>;
-};
+import {
+  isSlotTimeout,
+  TimeSlotCardBase,
+  type Slot,
+  type TimeSlotCardProps,
+} from "@/components/shared/timeSlots";
 
 const timeSlotStatusClient = {
   AVAILABLE: {
@@ -32,7 +32,10 @@ const timeSlotStatusClient = {
   },
 };
 
-export default function ClientTimeSlotCard({ slot, setSlots }: Props) {
+export default function ClientTimeSlotCard({
+  slot,
+  setSlots,
+}: TimeSlotCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
   const { user } = use(UserContext);
@@ -76,7 +79,7 @@ export default function ClientTimeSlotCard({ slot, setSlots }: Props) {
     }
   };
 
-  const isSlotTimeout = new Date(slot.startTime) < new Date();
+  const slotTimeout = isSlotTimeout(slot.startTime);
   const isBookedByMe = slot.appointment?.userId === user?.id;
 
   return (
@@ -84,26 +87,40 @@ export default function ClientTimeSlotCard({ slot, setSlots }: Props) {
       slot={slot}
       statusBadge={
         <div className="mt-auto">
-          {!isSlotTimeout && slot.status === "AVAILABLE" && (
-            <span
-              className={cn(
-                "font-semibold",
-                timeSlotStatusClient[slot.status].styles,
-                isBookedByMe && "text-blue-500",
-              )}
-            >
-              {timeSlotStatusClient[slot.status].text} {isBookedByMe && "لك"}
-            </span>
-          )}
-          {isBookedByMe && (
+          <span
+            className={cn(
+              "font-semibold",
+              timeSlotStatusClient[slot.status].styles,
+              isBookedByMe &&
+                slot.appointment?.status === "CONFIRMED" &&
+                "bg-blue-50 text-blue-500",
+              isBookedByMe &&
+                slot.appointment?.status === "PENDING" &&
+                "bg-yellow-50 text-yellow-500",
+            )}
+          >
+            {timeSlotStatusClient[slot.status].text}
+            {isBookedByMe && slot.appointment?.status === "CONFIRMED" && " لك"}
+            {isBookedByMe &&
+              slot.appointment?.status === "PENDING" &&
+              " (قيد الانتظار)"}
+          </span>
+
+          {isBookedByMe ? (
             <Button asChild className="mt-2 w-full" variant={"secondary"}>
               <Link to={"/appointments"}>الذهاب لحجوزاتي</Link>
             </Button>
+          ) : (
+            slot.status === "BOOKED" && (
+              <span className="mt-2 block rounded-lg bg-red-100 py-1 text-center text-red-500">
+                الموعد محجوز
+              </span>
+            )
           )}
         </div>
       }
       footer={
-        slot.status === "AVAILABLE" && !isSlotTimeout ? (
+        slot.status === "AVAILABLE" && !slotTimeout ? (
           <Dialog>
             <DialogTrigger asChild className="mt-auto h-8">
               <Button className="w-full bg-linear-to-r from-green-500 to-emerald-500 transition-all hover:from-green-600 hover:to-emerald-600 hover:shadow-md">

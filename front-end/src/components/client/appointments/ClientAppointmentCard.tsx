@@ -5,37 +5,19 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { socket } from "@/lib/utils";
-import type { Appointment } from "@/types";
 import { LoaderCircle } from "lucide-react";
 import { useRef, useState } from "react";
-import { toast } from "sonner";
-import { AppointmentCardBase } from "@/components/shared/appointments";
+import {
+  AppointmentCardBase,
+  cancelAppointment,
+  type AppointmentCardProps,
+} from "@/components/shared/appointments";
 
-type Props = {
-  appointment: Appointment;
-};
-
-export default function ClientAppointmentCard({ appointment }: Props) {
+export default function ClientAppointmentCard({
+  appointment,
+}: AppointmentCardProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const cancelAppointment = async () => {
-    try {
-      setIsSubmitting(true);
-      socket.emit("cancel appointment", { appointmentId: appointment.id });
-    } catch {
-      toast("حدث خطأ ما", {
-        action: {
-          label: "حسناً",
-          onClick: () => {},
-        },
-      });
-    } finally {
-      setIsSubmitting(false);
-      closeRef.current?.click();
-    }
-  };
 
   return (
     <AppointmentCardBase
@@ -60,7 +42,13 @@ export default function ClientAppointmentCard({ appointment }: Props) {
                   variant={"destructive"}
                   className="w-full"
                   disabled={isSubmitting}
-                  onClick={cancelAppointment}
+                  onClick={() =>
+                    cancelAppointment({
+                      appointmentId: appointment.id,
+                      setIsSubmitting,
+                      closeRef,
+                    })
+                  }
                 >
                   {isSubmitting ? (
                     <LoaderCircle className="size-5 animate-spin" />

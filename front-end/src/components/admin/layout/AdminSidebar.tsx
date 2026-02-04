@@ -4,48 +4,12 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import {
-  Calendar,
-  CalendarCheck,
-  NotebookText,
-  User,
-  Users,
-} from "lucide-react";
 import { Link, useLocation } from "react-router";
+import { LINKS } from "./consts";
 
 export default function AdminSidebar() {
   const router = useLocation();
-  const LINKS = [
-    {
-      title: "الصفحة الرئيسية",
-      link: "/admin",
-    },
-    {
-      title: "العملاء",
-      link: "/admin/clients",
-      icon: Users,
-    },
-    {
-      title: "الأوقات المتاحة",
-      link: "/admin/time-slots",
-      icon: Calendar,
-    },
-    {
-      title: "الحجوزات",
-      link: "/admin/appointments",
-      icon: CalendarCheck,
-    },
-    {
-      title: "التقارير",
-      link: "/admin/reports",
-      icon: NotebookText,
-    },
-    {
-      title: "إضافة مسئول",
-      link: "/admin/registerAdmin",
-      icon: User,
-    },
-  ];
+
   return (
     <Sidebar side="right" className="bg-white px-2 shadow *:bg-white">
       <SidebarHeader className="flex-row items-center bg-transparent">

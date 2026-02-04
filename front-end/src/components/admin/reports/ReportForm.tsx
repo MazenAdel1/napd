@@ -7,6 +7,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
 import { cn } from "@/lib/utils";
+import { REPORT_INPUTS, REPORT_SCHEMA } from "./consts";
+import type { ReportFormSchema } from "./types";
 
 export default function ReportForm<T extends Record<string, unknown>>(
   props: ReportForm<T>,
@@ -15,25 +17,8 @@ export default function ReportForm<T extends Record<string, unknown>>(
 
   const router = useNavigate();
 
-  type ReportFormSchema = z.infer<typeof SCHEMA>;
-
-  const SCHEMA = z.object({
-    description: z.string("نص التقرير مطلوب"),
-  });
-
-  const INPUTS: FormProps<ReportFormSchema>["inputs"] = [
-    {
-      id: "description",
-      label: "نص التقرير",
-      name: "description",
-      type: "textarea",
-      placeholder: "اكتب نص التقرير هنا",
-      defaultValue: status === "UPDATE" ? props.defaultValue : undefined,
-    },
-  ];
-
-  const form = useForm<z.infer<typeof SCHEMA>>({
-    resolver: zodResolver(SCHEMA),
+  const form = useForm<z.infer<typeof REPORT_SCHEMA>>({
+    resolver: zodResolver(REPORT_SCHEMA),
   });
 
   const onSubmit: FormProps<ReportFormSchema>["onSubmit"] = async (values) => {
@@ -62,9 +47,11 @@ export default function ReportForm<T extends Record<string, unknown>>(
     }
   };
   return (
-    <Form<z.infer<typeof SCHEMA>>
+    <Form<z.infer<typeof REPORT_SCHEMA>>
       form={form}
-      inputs={INPUTS}
+      inputs={REPORT_INPUTS(
+        status === "UPDATE" ? props.defaultValue : undefined,
+      )}
       onSubmit={onSubmit}
       submitText="تأكيد"
       className={cn("bg-none shadow-none", className)}

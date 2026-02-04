@@ -1,21 +1,16 @@
 import { Badge } from "@/components/ui/badge";
-import { getHoursMinutes, weekday } from "@/lib/utils";
-import type { Appointment } from "@/types";
+import { getHoursMinutes } from "@/lib/utils";
 import { format } from "date-fns";
 import { ArrowLeft, CheckCircle2, Clock } from "lucide-react";
-import React from "react";
-
-export type AppointmentCardBaseProps = {
-  appointment: Appointment;
-  actions?: React.ReactNode;
-};
+import type { AppointmentCardBaseProps } from "./types";
+import { weekdays } from "@/lib/consts";
 
 export default function AppointmentCardBase({
   appointment,
   actions,
 }: AppointmentCardBaseProps) {
   const formattedDate = format(appointment.timeSlot.date, "dd-MM-yyyy");
-  const day = weekday[new Date(appointment.timeSlot.date).getDay()];
+  const day = weekdays[new Date(appointment.timeSlot.date).getDay()];
 
   return (
     <div

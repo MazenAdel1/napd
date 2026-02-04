@@ -1,7 +1,7 @@
-import { cn, sortedTimeSlots, weekday } from "@/lib/utils";
+import { cn, sortedTimeSlots } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import type { Slot } from "@/types";
+import type { TimeSlotsProps, Slot } from "@/components/shared/timeSlots";
 import AddTimeSlot from "./AddTimeSlot";
 import AdminTimeSlotCard from "./AdminTimeSlotCard";
 import { use, useEffect, useState } from "react";
@@ -9,15 +9,9 @@ import axios from "@/lib/axios";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SidebarContext } from "@/components/ui/sidebar";
+import { weekdays } from "@/lib/consts";
 
-type Status = "choose_date" | "slots";
-
-type Props = {
-  date: Date;
-  setStep: React.Dispatch<React.SetStateAction<Status>>;
-};
-
-export default function AdminTimeSlots({ setStep, date }: Props) {
+export default function AdminTimeSlots({ setStep, date }: TimeSlotsProps) {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,7 +45,7 @@ export default function AdminTimeSlots({ setStep, date }: Props) {
       </div>
       <div className="flex flex-col gap-2">
         <h1 className="text-xl sm:text-2xl">
-          المواعيد الحالية ليوم {weekday[date.getDay()]} {formattedDate}
+          المواعيد الحالية ليوم {weekdays[date.getDay()]} {formattedDate}
         </h1>
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

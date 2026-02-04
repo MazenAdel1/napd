@@ -1,47 +1,8 @@
-import type { Slot } from "@/types";
-import { ArrowLeft, Sun, Moon, Sunset } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { cn, getHoursMinutes } from "@/lib/utils";
-import React from "react";
-
-export type TimeSlotCardBaseProps = {
-  slot: Slot;
-  actions?: React.ReactNode;
-  statusBadge?: React.ReactNode;
-  footer?: React.ReactNode;
-};
-
-// Helper to determine time of day from slot start time
-const getTimeOfDay = (startTime: string) => {
-  const hour = new Date(startTime).getHours();
-  if (hour >= 0 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 18) return "evening";
-  return "night";
-};
-
-// Time of day configurations
-const timeOfDayConfig = {
-  morning: {
-    icon: Sun,
-    gradient: "bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50",
-    iconColor: "text-amber-500",
-    borderColor: "border-amber-200",
-    label: "صباحاً",
-  },
-  evening: {
-    icon: Sunset,
-    gradient: "bg-gradient-to-br from-orange-50 via-rose-50 to-purple-100",
-    iconColor: "text-orange-500",
-    borderColor: "border-orange-200",
-    label: "مساءً",
-  },
-  night: {
-    icon: Moon,
-    gradient: "bg-gradient-to-br from-indigo-50 via-purple-100 to-slate-100",
-    iconColor: "text-indigo-500",
-    borderColor: "border-indigo-200",
-    label: "ليلاً",
-  },
-};
+import type { TimeSlotCardBaseProps } from "./types";
+import { getTimeOfDay, isSlotTimeout } from "./utils";
+import { timeOfDayConfig } from "./consts";
 
 export default function TimeSlotCardBase({
   slot,
@@ -53,7 +14,7 @@ export default function TimeSlotCardBase({
   const config = timeOfDayConfig[timeOfDay];
   const TimeIcon = config.icon;
 
-  const isSlotTimeout = new Date(slot.startTime) < new Date();
+  const slotTimeout = isSlotTimeout(slot.startTime);
 
   return (
     <div
@@ -63,7 +24,7 @@ export default function TimeSlotCardBase({
         "hover:-translate-y-1 hover:shadow-lg hover:shadow-black/10",
         config.gradient,
         config.borderColor,
-        isSlotTimeout && slot.status === "AVAILABLE"
+        slotTimeout && slot.status === "AVAILABLE"
           ? "border-t-4 border-t-red-400 opacity-75"
           : slot.status === "AVAILABLE"
             ? "border-t-4 border-t-green-400"
@@ -95,7 +56,7 @@ export default function TimeSlotCardBase({
       {statusBadge}
 
       {/* Timeout message */}
-      {slot.status === "AVAILABLE" && isSlotTimeout && (
+      {slot.status === "AVAILABLE" && slotTimeout && (
         <div className="mt-auto flex items-center justify-center gap-1 rounded-lg bg-red-100 py-1.5 text-sm text-red-600">
           انقضى وقت هذا الموعد
         </div>

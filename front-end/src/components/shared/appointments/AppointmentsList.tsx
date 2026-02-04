@@ -1,17 +1,10 @@
-import type { Appointment, DataWrapper } from "@/types";
+import type { Appointment } from "./types";
 import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
-import { socket } from "@/lib/utils";
+import { socket } from "@/lib/consts";
 import DataTemplate from "@/components/shared/DataTemplate";
 import React from "react";
-
-export type AppointmentsListProps = DataWrapper & {
-  header?: React.ReactNode;
-  userId?: string;
-  isAdmin?: boolean;
-  renderAppointment: (appointment: Appointment) => React.ReactNode;
-  link: string;
-};
+import type { AppointmentsListProps } from "./types";
 
 export default function AppointmentsList({
   limit,

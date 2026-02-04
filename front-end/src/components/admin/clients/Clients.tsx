@@ -1,4 +1,4 @@
-import { socket } from "@/lib/utils";
+import { socket } from "@/lib/consts";
 import { useEffect, useState } from "react";
 import axios from "@/lib/axios";
 import type { DataWrapper, User } from "@/types";

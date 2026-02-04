@@ -1,27 +1,18 @@
-import type { Slot } from "@/types";
 import { useState } from "react";
 import axios from "@/lib/axios";
 import { cn } from "@/lib/utils";
-import { TimeSlotCardBase } from "@/components/shared/timeSlots";
+import {
+  TimeSlotCardBase,
+  type Slot,
+  type TimeSlotCardProps,
+} from "@/components/shared/timeSlots";
 import ActionsMenu from "@/components/shared/ActionsMenu";
+import { adminTimeSlotStatus } from "./consts";
 
-type Props = {
-  slot: Slot;
-  setSlots: React.Dispatch<React.SetStateAction<Slot[]>>;
-};
-
-const timeSlotStatusAdmin = {
-  AVAILABLE: {
-    text: "متاح",
-    styles: "text-blue-500 bg-blue-50 rounded-lg px-2 py-1",
-  },
-  BOOKED: {
-    text: "محجوز",
-    styles: "text-green-500 bg-green-50 rounded-lg px-2 py-1",
-  },
-};
-
-export default function AdminTimeSlotCard({ slot, setSlots }: Props) {
+export default function AdminTimeSlotCard({
+  slot,
+  setSlots,
+}: TimeSlotCardProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const deleteSlot = async (id: Slot["id"]) => {
@@ -53,17 +44,17 @@ export default function AdminTimeSlotCard({ slot, setSlots }: Props) {
             <span
               className={cn(
                 "font-semibold",
-                timeSlotStatusAdmin[slot.status].styles,
+                adminTimeSlotStatus[slot.status].styles,
               )}
             >
-              {timeSlotStatusAdmin[slot.status].text}
+              {adminTimeSlotStatus[slot.status].text}
             </span>
           )}
           {slot.status === "BOOKED" && (
             <span
-              className={cn("font-semibold", timeSlotStatusAdmin.BOOKED.styles)}
+              className={cn("font-semibold", adminTimeSlotStatus.BOOKED.styles)}
             >
-              {timeSlotStatusAdmin.BOOKED.text}
+              {adminTimeSlotStatus.BOOKED.text}
             </span>
           )}
         </div>

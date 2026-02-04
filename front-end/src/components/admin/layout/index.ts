@@ -1,2 +1,3 @@
 export { default as AdminLayout } from "./AdminLayout";
 export { default as AdminSidebar } from "./AdminSidebar";
+export { LINKS } from "./consts";
