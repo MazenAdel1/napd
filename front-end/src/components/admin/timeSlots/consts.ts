@@ -46,7 +46,7 @@ export const MULTIPLE_SLOTS_INPUTS = (
   },
   {
     id: "slotDuration",
-    label: "مدة الموعد",
+    label: "مدة الموعد (بالدقائق)",
     name: "slotDuration",
     type: "number",
     placeholder: "أدخل وقت الموعد الواحد",

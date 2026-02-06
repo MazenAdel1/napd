@@ -17,6 +17,7 @@ import {
   Home,
   ClientTimeSlotsPage,
   ClientAppointments,
+  Profile,
 } from "./components/client";
 
 import UserProvider from "./UserProvider";
@@ -56,6 +57,7 @@ function App() {
         {/* Client routes - protected */}
         <Route path="/" element={<ClientLayout />}>
           <Route index element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/time-slots" element={<ClientTimeSlotsPage />} />
           <Route path="/appointments" element={<ClientAppointments />} />
         </Route>

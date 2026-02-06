@@ -1,8 +1,9 @@
 import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
 import ReportCard from "./ReportCard";
-import type { DataWrapper, Report } from "@/types";
+import type { DataWrapper } from "@/types";
 import DataTemplate from "@/components/shared/DataTemplate";
+import type { Report } from "./types";
 
 export default function Reports({ limit, seeAllButton }: DataWrapper) {
   const [reports, setReports] = useState<Report[]>([]);

@@ -1,7 +1,6 @@
 import React from "react";
 import type { Path, UseFormReturn } from "react-hook-form";
 import type { ClassNameValue } from "tailwind-merge";
-import type { Appointment } from "./components/shared/appointments/types";
 
 type InputType = HTMLInputElement["type"];
 
@@ -15,6 +14,7 @@ export type InputField<T extends Record<string, unknown>> = {
   required?: boolean;
   className?: ClassNameValue;
   defaultValue?: HTMLInputElement["defaultValue"];
+  defaultChecked?: boolean;
   hidden?: boolean;
 };
 
@@ -45,26 +45,3 @@ export type User = {
   medicationsDesc: string;
   healthStatus: string;
 };
-
-export type Report = {
-  id: string;
-  appointment: Appointment;
-  appointmentId: Appointment["id"];
-  description: string;
-};
-
-export type ReportForm<T extends Record<string, unknown>> = {
-  className?: ClassNameValue;
-} & (
-  | {
-      status: "CREATE";
-      appointmentId: Appointment["id"];
-    }
-  | {
-      status: "UPDATE";
-      reportId: Report["id"];
-      setReport: React.Dispatch<React.SetStateAction<Partial<Report> | null>>;
-      defaultValue?: InputField<T>["defaultValue"];
-      closeRef?: React.RefObject<HTMLButtonElement | null>;
-    }
-);

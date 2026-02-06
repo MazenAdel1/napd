@@ -1,4 +1,4 @@
-import type { Report } from "@/types";
+import type { Report } from "./types";
 import axios from "@/lib/axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";

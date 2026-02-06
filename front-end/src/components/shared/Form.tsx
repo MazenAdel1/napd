@@ -47,43 +47,52 @@ export default function Form<T extends Record<string, unknown>>(
               let InputItem;
 
               switch (input.type) {
-                case "textarea":
+                case "textarea": {
+                  const { value, ...textareaField } = field;
                   InputItem = (
                     <Textarea
-                      {...field}
-                      value={
-                        (field.value as HTMLInputElement["value"]) ||
-                        input.defaultValue
-                      }
+                      {...textareaField}
+                      {...((input.defaultValue as string)
+                        ? { defaultValue: input.defaultValue as string }
+                        : { value: (value ?? "") as string })}
                       className={input.className as string}
                     />
                   );
                   break;
-                case "checkbox":
+                }
+                case "checkbox": {
+                  const { value, ...checkboxField } = field;
+
                   InputItem = (
                     <Checkbox
-                      {...field}
-                      value={field.value as HTMLInputElement["value"]}
+                      {...checkboxField}
+                      checked={
+                        value !== undefined
+                          ? Boolean(value)
+                          : Boolean(input.defaultChecked)
+                      }
                       onCheckedChange={field.onChange}
                       className={input.className as string}
                     />
                   );
                   break;
-                default:
+                }
+                default: {
+                  const { value, ...inputField } = field;
                   InputItem = (
                     <Input
-                      {...field}
+                      {...inputField}
                       type={input.type}
-                      value={
-                        (field.value as HTMLInputElement["value"]) ||
-                        input.defaultValue
-                      }
+                      {...((input.defaultValue as string)
+                        ? { defaultValue: input.defaultValue as string }
+                        : { value: (value ?? "") as string | number })}
                       {...(input.type === "number" &&
                         form.register(input.name, { valueAsNumber: true }))}
                       className={input.className as string}
                     />
                   );
                   break;
+                }
               }
 
               return (

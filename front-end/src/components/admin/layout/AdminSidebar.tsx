@@ -6,12 +6,13 @@ import {
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router";
 import { LINKS } from "./consts";
+import Logout from "@/components/shared/Logout";
 
 export default function AdminSidebar() {
   const router = useLocation();
 
   return (
-    <Sidebar side="right" className="bg-white px-2 shadow *:bg-white">
+    <Sidebar side="right" className="bg-white p-2 shadow *:bg-white">
       <SidebarHeader className="flex-row items-center bg-transparent">
         <img
           src="/system-logo-2.png"
@@ -41,6 +42,7 @@ export default function AdminSidebar() {
             </li>
           ))}
         </ul>
+        <Logout className="mt-auto" />
       </SidebarContent>
     </Sidebar>
   );

@@ -7,6 +7,8 @@ const {
   registerAdmin,
   deleteUser,
   getUserByToken,
+  logout,
+  updateUser,
 } = require("../controllers/users.controller");
 const verifyToken = require("../middleware/verifyToken");
 
@@ -19,7 +21,10 @@ router
 
 router.route("/getUserByToken").get(verifyToken, getUserByToken);
 
+router.route("/update").patch(verifyToken, updateUser);
+
 router.route("/login").post(login);
+router.route("/logout").post(verifyToken, logout);
 router
   .route("/registerAdmin")
   .post(verifyToken, allowedTo(roles.ADMIN), registerAdmin);

@@ -1,5 +1,5 @@
 import Form from "@/components/shared/Form";
-import type { FormProps, ReportForm } from "@/types";
+import type { FormProps } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "@/lib/axios";
 import axs from "axios";
@@ -8,16 +8,16 @@ import { useNavigate } from "react-router";
 import z from "zod";
 import { cn } from "@/lib/utils";
 import { REPORT_INPUTS, REPORT_SCHEMA } from "./consts";
-import type { ReportFormSchema } from "./types";
+import type { ReportFormSchema, ReportFormType } from "./types";
 
 export default function ReportForm<T extends Record<string, unknown>>(
-  props: ReportForm<T>,
+  props: ReportFormType<T>,
 ) {
   const { className, status } = props;
 
   const router = useNavigate();
 
-  const form = useForm<z.infer<typeof REPORT_SCHEMA>>({
+  const form = useForm<ReportFormSchema>({
     resolver: zodResolver(REPORT_SCHEMA),
   });
 

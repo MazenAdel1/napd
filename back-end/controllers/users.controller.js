@@ -47,7 +47,7 @@ const deleteUser = asyncWrapper(async (req, res) => {
     const error = appError.create(
       "هوية المستخدم مطلوبة",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -62,6 +62,38 @@ const deleteUser = asyncWrapper(async (req, res) => {
   return res.json({ status: httpStatus.SUCCESS, data: { user } });
 });
 
+const updateUser = async (data, userId) => {
+  const { id, ...rest } = data;
+
+  if (!id) {
+    throw appError.create(
+      "هوية المستخدم مطلوبة",
+      httpStatus.BAD_REQUEST.code,
+      httpStatus.BAD_REQUEST.message,
+    );
+  }
+
+  if (id !== userId) {
+    throw appError.create(
+      "لا يمكنك تعديل بيانات مستخدم آخر",
+      httpStatus.FORBIDDEN.code,
+      httpStatus.FORBIDDEN.message,
+    );
+  }
+
+  const user = await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      ...rest,
+    },
+    omit: { password: true },
+  });
+
+  return user;
+};
+
 const login = asyncWrapper(async (req, res, next) => {
   const { name, phoneNumber, password } = req.body;
 
@@ -69,7 +101,7 @@ const login = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "الإسم و رقم الهاتف مطلوبان",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -85,7 +117,7 @@ const login = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "المستخدم غير موجود",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -96,7 +128,7 @@ const login = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "كلمة المرور غير صحيحة",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -136,7 +168,7 @@ const registerAdmin = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "المستخدم موجود بالفعل",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
@@ -169,7 +201,7 @@ const registerClient = async (data) => {
     throw appError.create(
       "المستخدم موجود بالفعل",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
   }
 
@@ -182,9 +214,11 @@ const registerClient = async (data) => {
       password: hashedPassword,
       role: "CLIENT",
     },
+    omit: {
+      password: true,
+    },
   });
 
-  delete user.password;
   return user;
 };
 
@@ -192,6 +226,7 @@ module.exports = {
   getUserByToken,
   getAllClients,
   deleteUser,
+  updateUser,
   login,
   registerAdmin,
   registerClient,

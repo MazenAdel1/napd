@@ -38,7 +38,10 @@ app.use(cookiesParser());
 const PORT = process.env.PORT || 3000;
 
 const { httpStatus } = require("./utils/consts");
-const { registerClient } = require("./controllers/users.controller");
+const {
+  registerClient,
+  updateUser,
+} = require("./controllers/users.controller");
 
 const usersRouter = require("./routes/users.route");
 const timeSlotsRouter = require("./routes/timeSlots.route");
@@ -109,6 +112,20 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.log("client NOT added");
       socket.emit("client add fail", error);
+    }
+  });
+
+  socket.on("update client", async (data) => {
+    if (!socket.user) {
+      return socket.emit("error", { message: "Authentication required" });
+    }
+
+    try {
+      const updatedClient = await updateUser(data, socket.user.id);
+      socket.emit("client update success", updatedClient);
+      io.emit("client updated", updatedClient);
+    } catch {
+      console.log("client NOT updated");
     }
   });
 

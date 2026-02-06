@@ -10,7 +10,7 @@ export default function AuthLayout({
   return (
     <div
       className={cn(
-        "flex min-h-dvh flex-col items-center justify-center gap-4 px-3",
+        "flex min-h-dvh flex-col items-center justify-center gap-4 px-3 py-2",
         className,
       )}
     >
