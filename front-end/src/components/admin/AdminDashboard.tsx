@@ -4,11 +4,9 @@ import Clients from "@/components/admin/clients/Clients";
 
 export default function AdminDashboard() {
   return (
-    <div className="pb-4">
+    <div className="flex flex-col divide-y-2 divide-gray-300">
       <AdminAppointments limit={4} seeAllButton />
-      <hr className="my-15 border border-gray-300" />
       <Clients limit={4} seeAllButton />
-      <hr className="my-15 border border-gray-300" />
       <Reports limit={4} seeAllButton />
     </div>
   );
