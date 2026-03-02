@@ -23,7 +23,7 @@ export default function Clients({ limit, seeAllButton }: DataWrapper) {
     })();
 
     socket.on("client added", (newClient) => {
-      setClients((prev) => [...prev, newClient]);
+      setClients((prev) => [newClient, ...prev]);
     });
 
     socket.on("client updated", (updatedClient) => {
