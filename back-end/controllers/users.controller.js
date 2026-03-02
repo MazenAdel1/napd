@@ -36,6 +36,9 @@ const getAllClients = asyncWrapper(async (req, res) => {
     },
     ...(limit && { take: +limit }),
     omit: { password: true },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
   return res.json({ status: httpStatus.SUCCESS, data: { clients } });
 });

@@ -36,6 +36,9 @@ const getReports = asyncWrapper(async (req, res) => {
         },
       },
       ...(limit && { take: +limit }),
+      orderBy: {
+        createAt: "desc",
+      },
     });
   }
 
@@ -58,7 +61,7 @@ const addReport = asyncWrapper(async (req, res, next) => {
     const error = appError.create(
       "تم كتابة تقرير لهذا الحجز مسبقا",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
