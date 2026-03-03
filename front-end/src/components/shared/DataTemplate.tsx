@@ -25,9 +25,9 @@ export default function DataTemplate({
   const sidebarContext = use(SidebarContext);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-6 pt-3 pb-15">
       <div className="flex items-center justify-between">
-        <h1 className="py-3 text-3xl font-bold">{title}</h1>
+        <h1 className="text-3xl font-bold">{title}</h1>
         {seeAllButton && data.length > 0 && (
           <Button asChild variant={"outline"}>
             <Link to={link}>رؤية الكل</Link>
