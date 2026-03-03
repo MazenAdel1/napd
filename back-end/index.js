@@ -14,6 +14,7 @@ const cookiesParser = require("cookie-parser");
 const corsOptions = {
   origin: [
     "http://localhost:5173",
+    "http://localhost:4173",
     "https://abo-greda.vercel.app",
     "https://abo-greda-production.up.railway.app",
   ],
@@ -38,25 +39,20 @@ app.use(cookiesParser());
 const PORT = process.env.PORT || 3000;
 
 const { httpStatus } = require("./utils/consts");
-const {
-  registerClient,
-  updateUser,
-} = require("./controllers/users.controller");
 
 const usersRouter = require("./routes/users.route");
 const timeSlotsRouter = require("./routes/timeSlots.route");
 const appointmentsRouter = require("./routes/appointments.route");
 const reportsRouter = require("./routes/reports.route");
-const {
-  getAppointmentBySlotId,
-  cancelAppointment,
-  confirmAppointment,
-} = require("./controllers/appointments.controller");
+const notificationsRouter = require("./routes/notifications.route");
+
+const { liveSocket } = require("./utils/liveSocket");
 
 app.use("/api/users", usersRouter);
 app.use("/api/timeSlots", timeSlotsRouter);
 app.use("/api/appointments", appointmentsRouter);
 app.use("/api/reports", reportsRouter);
+app.use("/api/notifications", notificationsRouter);
 
 app.use((error, req, res, next) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
@@ -102,87 +98,4 @@ io.use(async (socket, next) => {
   }
 });
 
-io.on("connection", (socket) => {
-  // Registration doesn't require authentication
-  socket.on("add client", async (data) => {
-    try {
-      const newClient = await registerClient(data);
-      socket.emit("client add success");
-      io.emit("client added", newClient);
-    } catch (error) {
-      console.log("client NOT added");
-      socket.emit("client add fail", error);
-    }
-  });
-
-  socket.on("update client", async (data) => {
-    if (!socket.user) {
-      return socket.emit("error", { message: "Authentication required" });
-    }
-
-    try {
-      const updatedClient = await updateUser(data, socket.user.id);
-      socket.emit("client update success", updatedClient);
-      io.emit("client updated", updatedClient);
-    } catch {
-      console.log("client NOT updated");
-    }
-  });
-
-  socket.on("add appointment", async (data) => {
-    if (!socket.user) {
-      return socket.emit("error", { message: "Authentication required" });
-    }
-    try {
-      const newAppointment = await getAppointmentBySlotId(data.slotId);
-      io.emit("appointment added", newAppointment);
-    } catch {
-      console.log("appointment NOT added");
-    }
-  });
-
-  socket.on("cancel appointment", async (data) => {
-    if (!socket.user) {
-      return socket.emit("error", { message: "Authentication required" });
-    }
-
-    try {
-      const appointment = await prisma.appointment.findUnique({
-        where: { id: data.appointmentId },
-      });
-
-      if (!appointment) {
-        return socket.emit("error", { message: "Appointment not found" });
-      }
-
-      if (
-        socket.user.role !== "ADMIN" &&
-        socket.user.id !== appointment.userId
-      ) {
-        return socket.emit("error", { message: "Unauthorized" });
-      }
-
-      const canceledAppointment = await cancelAppointment(data.appointmentId);
-      io.emit("appointment canceled", canceledAppointment);
-    } catch (error) {
-      console.log("appointment NOT canceled", error);
-      socket.emit("error", { message: "Failed to cancel appointment" });
-    }
-  });
-
-  socket.on("confirm appointment", async (data) => {
-    if (!socket.user) {
-      return socket.emit("error", { message: "Authentication required" });
-    }
-    if (socket.user.role !== "ADMIN") {
-      return socket.emit("error", { message: "Unauthorized" });
-    }
-
-    try {
-      const confirmedAppointment = await confirmAppointment(data.appointmentId);
-      io.emit("appointment confirmed", confirmedAppointment);
-    } catch {
-      console.log("appointment NOT confirmed");
-    }
-  });
-});
+liveSocket(io);
