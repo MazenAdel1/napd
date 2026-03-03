@@ -74,6 +74,9 @@ const cancelAppointment = async (id) => {
   const appointment = await prisma.appointment.delete({
     where: { id },
     include: {
+      user: {
+        omit: { password: true },
+      },
       timeSlot: true,
     },
   });
