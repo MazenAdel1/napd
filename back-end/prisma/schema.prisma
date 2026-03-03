@@ -80,7 +80,7 @@ model Report {
 }
 
 enum NotificationType {
-  CLIENT_ADDED
+  CLIENT_REGISTERED
   APPOINTMENT_BOOKED
   APPOINTMENT_CANCELLED
 }
