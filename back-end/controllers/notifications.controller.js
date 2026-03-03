@@ -66,7 +66,7 @@ const markNotificationsAsRead = asyncWrapper(async (req, res) => {
   });
 });
 
-const CreateNotification = async (userId, type) => {
+const createNotification = async (userId, type) => {
   const notification = await prisma.notification.create({
     data: {
       userId,
@@ -83,7 +83,7 @@ const CreateNotification = async (userId, type) => {
 };
 
 module.exports = {
-  CreateNotification,
+  createNotification,
   getAllNotifications,
   markNotificationsAsRead,
 };

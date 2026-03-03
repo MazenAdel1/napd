@@ -4,7 +4,7 @@ const {
   cancelAppointment,
 } = require("../controllers/appointments.controller");
 const {
-  CreateNotification,
+  createNotification,
 } = require("../controllers/notifications.controller");
 const {
   registerClient,
@@ -23,7 +23,7 @@ const liveSocket = (io) =>
         const newClient = await registerClient(data);
         socket.emit("client add success");
         io.emit("client added", newClient);
-        const newNotification = await CreateNotification(
+        const newNotification = await createNotification(
           newClient.id,
           "CLIENT_REGISTERED",
         );
@@ -54,7 +54,7 @@ const liveSocket = (io) =>
       try {
         const newAppointment = await getAppointmentBySlotId(data.slotId);
         io.emit("appointment added", newAppointment);
-        const notification = await CreateNotification(
+        const notification = await createNotification(
           newAppointment.userId,
           "APPOINTMENT_BOOKED",
         );
@@ -88,11 +88,13 @@ const liveSocket = (io) =>
         const canceledAppointment = await cancelAppointment(data.appointmentId);
         io.emit("appointment canceled", canceledAppointment);
 
-        const notification = await CreateNotification(
-          canceledAppointment.userId,
-          "APPOINTMENT_CANCELLED",
-        );
-        io.emit("notification", notification);
+        if (socket.user.role !== "ADMIN") {
+          const notification = await createNotification(
+            canceledAppointment.userId,
+            "APPOINTMENT_CANCELLED",
+          );
+          io.emit("notification", notification);
+        }
       } catch (error) {
         socket.emit("error", { message: "Failed to cancel appointment" });
       }
