@@ -4,7 +4,7 @@ import { Outlet, useNavigate } from "react-router";
 import AdminSidebar from "./AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { LoaderCircle } from "lucide-react";
-import Notifications from "../Notifications";
+import { Notifications } from "../notifications";
 
 export default function AdminLayout() {
   const { user, isLoading } = use(UserContext);
