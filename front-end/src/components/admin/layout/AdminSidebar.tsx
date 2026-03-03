@@ -15,7 +15,7 @@ export default function AdminSidebar() {
     <Sidebar side="right" className="bg-white p-2 shadow *:bg-white">
       <SidebarHeader className="flex-row items-center bg-transparent">
         <img
-          src="/system-logo-2.png"
+          src="/system-logo-2.webp"
           alt="Napd system logo"
           className="w-10"
           width={100}

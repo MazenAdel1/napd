@@ -14,7 +14,7 @@ export default function AuthLayout({
         className,
       )}
     >
-      <img src="/system-logo-2.png" alt="System Logo" className="h-24 w-24" />
+      <img src="/system-logo-2.webp" alt="System Logo" className="h-24 w-24" />
       <Outlet />
     </div>
   );
