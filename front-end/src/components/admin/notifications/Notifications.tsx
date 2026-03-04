@@ -108,7 +108,7 @@ export default function Notifications() {
         <div className="flex max-h-64 flex-col gap-1 overflow-y-auto">
           {isLoading ? (
             <Loader2Icon className="mx-auto size-5 animate-spin" />
-          ) : (
+          ) : notifications.length > 0 ? (
             notifications?.map((notification, index) => (
               <Item
                 key={index}
@@ -136,25 +136,33 @@ export default function Notifications() {
                 </ItemContent>
               </Item>
             ))
+          ) : (
+            <Item variant={"outline"}>
+              <ItemContent className="text-center">لا توجد إشعارات</ItemContent>
+            </Item>
           )}
         </div>
-        <div className="flex justify-center p-2">
-          <Button
-            variant={"outline"}
-            onClick={() => setPage((prev) => prev - 1)}
-            disabled={page === 1}
-          >
-            <ArrowRight />
-          </Button>
-          <span className="flex items-center justify-center px-4">{page}</span>
-          <Button
-            variant={"outline"}
-            onClick={() => setPage((prev) => prev + 1)}
-            disabled={page === totalPages.current}
-          >
-            <ArrowLeft />
-          </Button>
-        </div>
+        {totalPages.current > 1 && (
+          <div className="flex justify-center p-2">
+            <Button
+              variant={"outline"}
+              onClick={() => setPage((prev) => prev - 1)}
+              disabled={page === 1}
+            >
+              <ArrowRight />
+            </Button>
+            <span className="flex items-center justify-center px-4">
+              {page}
+            </span>
+            <Button
+              variant={"outline"}
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={page === totalPages.current}
+            >
+              <ArrowLeft />
+            </Button>
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
