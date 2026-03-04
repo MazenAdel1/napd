@@ -1,4 +1,5 @@
-import type { DataWrapper, Report, User } from "@/types";
+import type { DataWrapper, User } from "@/types";
+import type { Report } from "@/components/admin/reports";
 import type { Slot } from "../timeSlots";
 
 export type Appointment = {
