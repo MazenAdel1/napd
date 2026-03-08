@@ -1,10 +1,9 @@
-import * as dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 
 import express from "express";
 import { type DefaultEventsMap, Server } from "socket.io";
 import jwt from "jsonwebtoken";
-import { prisma } from "./utils/prisma.js";
+import { prisma } from "./utils/prisma";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -22,19 +21,15 @@ import {
   reportsRouter,
   notificationsRouter,
 } from "./routes";
+
 import type appError from "./utils/appError.js";
 import type { CustomJwtPayload } from "./types/index.js";
-import type { User } from "@prisma/client";
+import type { User } from "./prisma/generated/prisma/client";
 
 const app = express();
 
 const corsOptions: cors.CorsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:4173",
-    "https://abo-greda.vercel.app",
-    "https://abo-greda-production.up.railway.app",
-  ],
+  origin: ["http://localhost:5173", "http://localhost:4173"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: [
