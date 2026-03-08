@@ -4,18 +4,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node index.ts",
+    "dev": "nodemon --exec tsx index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "seed": "ts-node prisma/seed.ts"
+"seed": "tsx prisma/seed.ts"
   },
-  "type": "commonjs",
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.14.0",
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
     "@prisma/extension-accelerate": "^2.0.2",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
@@ -33,8 +34,9 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.5",
     "nodemon": "^3.1.14",
-    "prisma": "^6.14.0",
+    "prisma": "^7.4.2",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

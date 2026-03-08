@@ -1,17 +1,34 @@
-require("dotenv").config();
-const express = require("express");
-const { Server } = require("socket.io");
-const jwt = require("jsonwebtoken");
-const { PrismaClient } = require("@prisma/client");
-const { withAccelerate } = require("@prisma/extension-accelerate");
+import * as dotenv from "dotenv";
+dotenv.config();
 
-const prisma = new PrismaClient().$extends(withAccelerate());
+import express from "express";
+import { type DefaultEventsMap, Server } from "socket.io";
+import jwt from "jsonwebtoken";
+import { prisma } from "./utils/prisma.js";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
+import { liveSocket } from "./utils/liveSocket";
+
+import { httpStatus } from "./utils/consts";
+
+import type { Request, Response, NextFunction } from "express";
+
+// routers
+import {
+  usersRouter,
+  timeSlotsRouter,
+  appointmentsRouter,
+  reportsRouter,
+  notificationsRouter,
+} from "./routes";
+import type appError from "./utils/appError.js";
+import type { CustomJwtPayload } from "./types/index.js";
+import type { User } from "@prisma/client";
 
 const app = express();
-const cors = require("cors");
-const cookiesParser = require("cookie-parser");
 
-const corsOptions = {
+const corsOptions: cors.CorsOptions = {
   origin: [
     "http://localhost:5173",
     "http://localhost:4173",
@@ -34,19 +51,9 @@ app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 app.options("/socket.io/*", cors(corsOptions));
 app.use(express.json());
-app.use(cookiesParser());
+app.use(cookieParser());
 
 const PORT = process.env.PORT || 3000;
-
-const { httpStatus } = require("./utils/consts");
-
-const usersRouter = require("./routes/users.route");
-const timeSlotsRouter = require("./routes/timeSlots.route");
-const appointmentsRouter = require("./routes/appointments.route");
-const reportsRouter = require("./routes/reports.route");
-const notificationsRouter = require("./routes/notifications.route");
-
-const { liveSocket } = require("./utils/liveSocket");
 
 app.use("/api/users", usersRouter);
 app.use("/api/timeSlots", timeSlotsRouter);
@@ -54,23 +61,30 @@ app.use("/api/appointments", appointmentsRouter);
 app.use("/api/reports", reportsRouter);
 app.use("/api/notifications", notificationsRouter);
 
-app.use((error, req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header("Access-Control-Allow-Credentials", "true");
+app.use(
+  (error: typeof appError, req: Request, res: Response, next: NextFunction) => {
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
+    res.header("Access-Control-Allow-Credentials", "true");
 
-  res.status(error.statusCode || 500).json({
-    status: error.statusText || httpStatus.SERVER_ERROR.message,
-    message: error.message,
-    code: error.statusCode || 500,
-    data: null,
-  });
-});
+    res.status(error.statusCode || 500).json({
+      status: error.statusText || httpStatus.SERVER_ERROR.message,
+      message: error.message,
+      code: error.statusCode || 500,
+      data: null,
+    });
+  },
+);
 
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-const io = new Server(server, {
+const io = new Server<
+  DefaultEventsMap,
+  DefaultEventsMap,
+  DefaultEventsMap,
+  User
+>(server, {
   cors: corsOptions,
   allowEIO3: true,
   transports: ["websocket", "polling"],
@@ -84,10 +98,13 @@ io.use(async (socket, next) => {
       ?.split("=")[1];
 
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET,
+      ) as CustomJwtPayload;
       const user = await prisma.user.findUnique({ where: { id: decoded.id } });
       if (user) {
-        socket.user = user;
+        socket.data = user;
       }
     }
     // Allow connection even without auth (for registration)
