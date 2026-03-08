@@ -4,16 +4,14 @@
     // File Layout
     "rootDir": "./",
     "outDir": "./dist",
+    "typeRoots": ["./node_modules/@types", "./types"],
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
+    "module": "esnext",
     "target": "esnext",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
+    "lib": ["esnext"],
+    "types": ["node"],
 
     // Other Outputs
     "sourceMap": true,
@@ -24,6 +22,7 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "esModuleInterop": true,
+    "moduleResolution": "bundler",
 
     // Style Options
     // "noImplicitReturns": true,
@@ -41,8 +40,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-
-    "include": ["**/*.ts"],
-    "exclude": ["node_modules", "dist"]
-  }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"],
 }
