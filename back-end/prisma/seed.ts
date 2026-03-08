@@ -1,6 +1,5 @@
-require("dotenv").config();
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+import { prisma } from "../utils/prisma";
+import bcrypt from "bcryptjs";
 
 async function main() {
   // Create some times
@@ -19,26 +18,25 @@ async function main() {
     },
   });
 
-  const bcrypt = require("bcryptjs");
-  const adminPassword = await bcrypt.hash("134652", 10);
+  const adminPassword = await bcrypt.hash("123123", 10);
 
   // Create ADMIN
   await prisma.user.create({
     data: {
-      name: "مازن عادل منيسي",
-      phoneNumber: "01008142981",
+      name: "مازن أدمن النظام",
+      phoneNumber: "12312312312",
       role: "ADMIN",
       password: adminPassword,
     },
   });
 
-  const clientPassword = await bcrypt.hash("123132", 10);
+  const clientPassword = await bcrypt.hash("123123", 10);
 
   // Create CLIENT
   const client = await prisma.user.create({
     data: {
-      name: "محمد أحمد محمود",
-      phoneNumber: "01012312312",
+      name: "م م م",
+      phoneNumber: "12312312313",
       age: 25,
       address: "الشارع الجديد",
       hasPastOperations: false,

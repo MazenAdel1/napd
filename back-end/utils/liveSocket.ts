@@ -1,22 +1,19 @@
-const {
+import type { User } from "../prisma/generated/prisma/client";
+import type { DefaultEventsMap, Server } from "socket.io";
+
+import {
   getAppointmentBySlotId,
   confirmAppointment,
   cancelAppointment,
-} = require("../controllers/appointments.controller");
-const {
-  createNotification,
-} = require("../controllers/notifications.controller");
-const {
-  registerClient,
-  updateUser,
-} = require("../controllers/users.controller");
+} from "../controllers/appointments.controller";
+import { createNotification } from "../controllers/notifications.controller";
+import { registerClient, updateUser } from "../controllers/users.controller";
 
-const { PrismaClient } = require("@prisma/client");
-const { withAccelerate } = require("@prisma/extension-accelerate");
+import { prisma } from "./prisma";
 
-const prisma = new PrismaClient().$extends(withAccelerate());
-
-const liveSocket = (io) =>
+export const liveSocket = (
+  io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, User>,
+) =>
   io.on("connection", (socket) => {
     socket.on("add client", async (data) => {
       try {
@@ -34,12 +31,12 @@ const liveSocket = (io) =>
     });
 
     socket.on("update client", async (data) => {
-      if (!socket.user) {
+      if (!socket.data) {
         return socket.emit("error", { message: "Authentication required" });
       }
 
       try {
-        const updatedClient = await updateUser(data, socket.user.id);
+        const updatedClient = await updateUser(data, socket.data.id);
         socket.emit("client update success", updatedClient);
         io.emit("client updated", updatedClient);
       } catch {
@@ -48,14 +45,14 @@ const liveSocket = (io) =>
     });
 
     socket.on("add appointment", async (data) => {
-      if (!socket.user) {
+      if (!socket.data) {
         return socket.emit("error", { message: "Authentication required" });
       }
       try {
         const newAppointment = await getAppointmentBySlotId(data.slotId);
         io.emit("appointment added", newAppointment);
         const notification = await createNotification(
-          newAppointment.userId,
+          newAppointment?.userId,
           "APPOINTMENT_BOOKED",
         );
         io.emit("notification", notification);
@@ -65,7 +62,7 @@ const liveSocket = (io) =>
     });
 
     socket.on("cancel appointment", async (data) => {
-      if (!socket.user) {
+      if (!socket.data) {
         return socket.emit("error", { message: "Authentication required" });
       }
 
@@ -79,8 +76,8 @@ const liveSocket = (io) =>
         }
 
         if (
-          socket.user.role !== "ADMIN" &&
-          socket.user.id !== appointment.userId
+          socket.data.role !== "ADMIN" &&
+          socket.data.id !== appointment.userId
         ) {
           return socket.emit("error", { message: "Unauthorized" });
         }
@@ -88,7 +85,7 @@ const liveSocket = (io) =>
         const canceledAppointment = await cancelAppointment(data.appointmentId);
         io.emit("appointment canceled", canceledAppointment);
 
-        if (socket.user.role !== "ADMIN") {
+        if (socket.data.role !== "ADMIN") {
           const notification = await createNotification(
             canceledAppointment.userId,
             "APPOINTMENT_CANCELLED",
@@ -101,10 +98,10 @@ const liveSocket = (io) =>
     });
 
     socket.on("confirm appointment", async (data) => {
-      if (!socket.user) {
+      if (!socket.data) {
         return socket.emit("error", { message: "Authentication required" });
       }
-      if (socket.user.role !== "ADMIN") {
+      if (socket.data.role !== "ADMIN") {
         return socket.emit("error", { message: "Unauthorized" });
       }
 
@@ -118,7 +115,3 @@ const liveSocket = (io) =>
       }
     });
   });
-
-module.exports = {
-  liveSocket,
-};
