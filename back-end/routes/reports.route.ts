@@ -1,16 +1,14 @@
-const express = require("express");
-const router = express.Router();
-
-const allowedTo = require("../middleware/allowedTo");
-const { roles } = require("../utils/consts");
-const verifyToken = require("../middleware/verifyToken");
-
-const {
+import express from "express";
+import { allowedTo, verifyToken } from "../middleware";
+import { roles } from "../utils/consts";
+import {
   getReports,
   addReport,
   updateReport,
   deleteReport,
-} = require("../controllers/reports.controller");
+} from "../controllers";
+
+const router = express.Router();
 
 router.route("/").get(verifyToken, allowedTo(roles.ADMIN), getReports);
 router
@@ -22,4 +20,4 @@ router
   .patch(verifyToken, allowedTo(roles.ADMIN), updateReport)
   .delete(verifyToken, allowedTo(roles.ADMIN), deleteReport);
 
-module.exports = router;
+export default router;

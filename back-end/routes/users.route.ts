@@ -1,16 +1,15 @@
-const express = require("express");
-const allowedTo = require("../middleware/allowedTo");
-const { roles } = require("../utils/consts");
-const {
+import express from "express";
+import { allowedTo, verifyToken } from "../middleware";
+import { roles } from "../utils/consts";
+import {
   getAllClients,
   login,
   registerAdmin,
   deleteUser,
   getUserByToken,
   logout,
-  updateUser,
-} = require("../controllers/users.controller");
-const verifyToken = require("../middleware/verifyToken");
+  httpUpdateUser,
+} from "../controllers";
 
 const router = express.Router();
 
@@ -21,7 +20,7 @@ router
 
 router.route("/getUserByToken").get(verifyToken, getUserByToken);
 
-router.route("/update").patch(verifyToken, updateUser);
+router.route("/update").patch(verifyToken, httpUpdateUser);
 
 router.route("/login").post(login);
 router.route("/logout").post(verifyToken, logout);
@@ -29,4 +28,4 @@ router
   .route("/registerAdmin")
   .post(verifyToken, allowedTo(roles.ADMIN), registerAdmin);
 
-module.exports = router;
+export default router;

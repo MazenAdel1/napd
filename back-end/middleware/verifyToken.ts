@@ -1,14 +1,24 @@
-const jwt = require("jsonwebtoken");
-const { httpStatus } = require("../utils/consts");
-const appError = require("../utils/appError");
+import jwt from "jsonwebtoken";
+import { httpStatus } from "../utils/consts";
+import appError from "../utils/appError";
+import type { NextFunction, Request, Response } from "express";
+import type { CustomJwtPayload } from "../types";
 
-const verifyToken = (req, res, next) => {
+export const verifyToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const authHeader =
     req.headers["Authorization"] || req.headers["authorization"];
 
   let token;
 
-  if (authHeader && authHeader.startsWith("Bearer ")) {
+  if (
+    authHeader &&
+    typeof authHeader === "string" &&
+    authHeader.startsWith("Bearer ")
+  ) {
     token = authHeader.split(" ")[1];
   }
 
@@ -20,7 +30,7 @@ const verifyToken = (req, res, next) => {
     const error = appError.create(
       "token is required",
       httpStatus.UNAUTHORIZED.code,
-      httpStatus.UNAUTHORIZED.message
+      httpStatus.UNAUTHORIZED.message,
     );
     return next(error);
   }
@@ -29,14 +39,12 @@ const verifyToken = (req, res, next) => {
     const currentUser = jwt.verify(token, process.env.JWT_SECRET);
     req.currentUser = currentUser;
     next();
-  } catch (err) {
+  } catch {
     const error = appError.create(
       "invalid token",
       httpStatus.BAD_REQUEST.code,
-      httpStatus.BAD_REQUEST.message
+      httpStatus.BAD_REQUEST.message,
     );
     return next(error);
   }
 };
-
-module.exports = verifyToken;
